@@ -52,8 +52,7 @@ export default function PantallaRegistro() {
   }
 
   try {
-    const { confirmarPassword, ...payload } = datos;
-    const respuesta = await registerUser(payload);
+    const respuesta = await registerUser(datos); // No excluyas confirmarPassword
     Alert.alert('Registro exitoso', 'Ya puedes iniciar sesión');
     console.log(respuesta);
   } catch (error: any) {
