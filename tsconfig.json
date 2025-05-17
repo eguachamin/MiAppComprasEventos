@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["./env.d.ts"],
+    "types": [
+      "./env.d.ts"
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "target": "esnext",
     "module": "nodenext",
@@ -11,10 +15,12 @@
       "dom",
       "esnext"
     ],
-    "jsx": "react-native",
+    "jsx": "react-jsx",
     "strict": true,
     "moduleResolution": "nodenext",
-    "customConditions": ["react-native"],  
+    "customConditions": [
+      "react-native"
+    ],
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
@@ -30,8 +36,6 @@
   "extends": "expo/tsconfig.base",
   "include": [
     "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "**/*.tsx"
   ]
 }

@@ -1,4 +1,3 @@
-// app/login.tsx
-import LoginScreen from '@/screens/LoginScreen'; // o donde lo tengas
+import LoginScreen from '@/screens/LoginScreen';
 
 export default LoginScreen;
