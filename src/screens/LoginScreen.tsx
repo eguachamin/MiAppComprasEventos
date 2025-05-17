@@ -1,101 +1,95 @@
+// src/screens/LoginScreen.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity , Alert } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { loginSchema } from '../utils/validators';
-import { login } from '../services/auth';
-import { TextInput, Button } from 'react-native-paper';
-import { useAuthStore } from '../store/authStore';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, TextInput, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { resendVerification } from '../services/auth';
 
-export default function LoginScreen() {
-  const router = useRouter();
-
-  const { control, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(loginSchema),
-  });
-
-  const setToken = useAuthStore((state) => state.setToken) ;
-  const setUser = useAuthStore((state) => state.setUser);
-
-  const onSubmit = async (data: any) => {
-  try {
-    const result = await login(data.email, data.password);
-    setToken(result.token);
-    setUser(result.user);
-    router.replace('/(tabs)');
-  } catch (error: any) {
-    const errorMsg = error.message;
-
-    if (errorMsg === 'Usuario no verificado' || errorMsg === 'Token expirado') {
-      const motivo = errorMsg === 'Token expirado'
-        ? 'Tu token de verificación ha expirado.'
-        : 'Tu cuenta aún no está verificada.';
-      // Mostrar alerta con opción para reenviar el correo
-      Alert.alert(
-        'Cuenta no verificada',
-        `${motivo} Tu cuenta aún no está verificada. ¿Deseas que te reenviemos el correo de verificación?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Reenviar',
-            onPress: async () => {
-              try {
-                await resendVerification(data.email);
-                Alert.alert('Correo enviado', 'Revisa tu bandeja de entrada.');
-              } catch (err: any) {
-                Alert.alert('Error', err.message);
-              }
-            }
-          }
-        ]
-      );
-    } else {
-      Alert.alert('Error de inicio de sesión', errorMsg || 'Verifica tu correo o contraseña.');
-    }
-  }
-};
+const LoginScreen = () => {
+  const route =useRouter();
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Iniciar Sesión</Text>
-
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Email"
-            value={value}
-            onChangeText={onChange}
-            style={{ marginBottom: 10 }}
-          />
-        )}
+    <View style={styles.container}>
+      <Image
+        source={require('../assets/images/logo_edwinAsquiDj.jpg')} // Asegúrate de colocar tu logo en assets
+        style={styles.logo}
+        resizeMode="contain"
       />
-      {errors.email && <Text style={{ color: 'red' }}>{errors.email.message}</Text>}
+      <Text style={styles.title}>Iniciar Sesión</Text>
 
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Contraseña"
-            secureTextEntry
-            value={value}
-            onChangeText={onChange}
-            style={{ marginBottom: 10 }}
-          />
-        )}
+      <TextInput
+        label="Correo electrónico"
+        mode="outlined"
+        style={styles.input}
+        textColor="white"
+        outlineColor="gray"
+        theme={{ colors: { primary: '#FFD700' } }}
       />
-      {errors.password && <Text style={{ color: 'red' }}>{errors.password.message}</Text>}
 
-      <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+      <TextInput
+        label="Contraseña"
+        mode="outlined"
+        secureTextEntry
+        style={styles.input}
+        textColor="white"
+        outlineColor="gray"
+        theme={{ colors: { primary: '#FFD700' } }}
+      />
+
+      <Button
+        mode="contained"
+        onPress={() => {}}
+        style={styles.button}
+        labelStyle={{ color: '#000' }}
+      >
         Entrar
       </Button>
 
-      <TouchableOpacity onPress={() => router.push('/register')}>
-        <Text style={{ color: 'blue', marginTop: 15 }}>¿No tienes cuenta? Regístrate</Text>
+      <TouchableOpacity onPress={() => route.push('/register')}>
+        <Text style={styles.registerText}>
+          ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
+        </Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
+
+export default LoginScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000', // Fondo negro
+    padding: 20,
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    color: '#FFD700',
+    fontSize: 28,
+    textAlign: 'center',
+    marginBottom: 20,
+    fontWeight: 'bold',
+  },
+  input: {
+    marginBottom: 15,
+    backgroundColor: '#1a1a1a',
+  },
+  button: {
+    backgroundColor: '#FFD700',
+    marginVertical: 20,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  registerText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  highlight: {
+    color: '#FFD700',
+    fontWeight: 'bold',
+  },
+});

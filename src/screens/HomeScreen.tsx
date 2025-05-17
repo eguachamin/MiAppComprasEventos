@@ -1,76 +1,94 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HomeScreen() {
   const router = useRouter();
 
+  const menuItems = [
+    { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
+    { label: 'Carrito', iconName: 'shopping-cart', route: '/carrito' },
+    { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario' },
+    { label: 'Sobre el DJ', iconName: 'info', route: '/vinilo' },
+  ];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido a la app del DJ</Text>
+    <LinearGradient
+      colors={['#000000', '#1a1a1a']}
+      style={styles.container}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>🎧 DJ Edwin</Text>
+        <TouchableOpacity onPress={() => console.log('Notificaciones')}>
+          <Feather name="bell" size={26} color="#FFD700" />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/vinilo')}
-      >
-        <Text style={styles.buttonText}>Comprar Discos de Vinilo</Text>
-      </TouchableOpacity>
+      <Text style={styles.subtitle}>¡Bienvenido a tu universo musical!</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/eventos')}
-      >
-        <Text style={styles.buttonText}>Reservar Servicio del DJ</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/pedidos')}
-      >
-        <Text style={styles.buttonText}>Ver Mis Pedidos / Reservas</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.buttonSecondary}
-        onPress={() => router.push('/perfilusuario')}
-      >
-        <Text style={styles.secondaryText}>Mi Perfil</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.menu}>
+        {menuItems.map((item) => (
+          <TouchableOpacity
+            key={item.route}
+            style={styles.menuButton}
+            onPress={() => router.push(item.route as any)}
+          >
+            <Feather name={item.iconName as any} size={30} color="#FFD700" />
+            <Text style={styles.menuText}>{item.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    color: '#FFD700',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ccc',
+    textAlign: 'center',
     marginBottom: 30,
-    textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
+  menu: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold',
+  menuButton: {
+    backgroundColor: '#111',
+    borderColor: '#FFD700',
+    borderWidth: 1.5,
+    padding: 20,
+    borderRadius: 14,
+    marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 6,
   },
-  buttonSecondary: {
-    padding: 10,
+  menuText: {
     marginTop: 10,
-  },
-  secondaryText: {
-    color: '#007bff',
-    textAlign: 'center',
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
 });

@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "types": ["./env.d.ts"],
     "paths": {
       "@/*": ["./src/*"]
     },
     "target": "esnext",
-    "module": "esnext",
+    "module": "nodenext",
     "lib": [
       "dom",
       "esnext"
     ],
     "jsx": "react-native",
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
+    "customConditions": ["react-native"],  
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
