@@ -14,10 +14,24 @@ export interface RegistroPayload {
 
 export const registerUser = async (payload: RegistroPayload) => {
   try {
-    const response = await api.post('/cliente/registro', payload); // <-- Cambia la ruta si tu endpoint es diferente
+    const response = await api.post('/cliente/registro', payload);
+    console.log('Respuesta del servidor:', response.data);
+    // Aquí puedes validar que la respuesta sea exitosa o no
+    if (response.data.success === false) {
+      // Si tu backend responde algo así, lanza error manualmente:
+      throw new Error(response.data.message || 'Error desconocido');
+    }
     return response.data;
   } catch (error: any) {
-    console.error('Error en el registro:', error.response?.data || error.message);
-    throw error.response?.data || { message: 'Error al registrar usuario' };
+    console.error('Error en el registro:', error);
+    let mensaje = 'Error al registrar usuario';
+
+    if (error?.response?.data?.message) {
+      mensaje = error.response.data.message;
+    } else if (error?.message) {
+      mensaje = error.message;
+    }
+
+    throw new Error(mensaje);
   }
 };

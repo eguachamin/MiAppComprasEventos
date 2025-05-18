@@ -12,13 +12,17 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { Feather } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 import { registerUser } from '../services/userService'; 
-
+import { zodResolver } from '@hookform/resolvers/zod';
+import { registroSchema } from '../utils/validators'; 
+import { router } from "expo-router";
 const provincias = [
   'Azuay', 'Bolívar', 'Cñar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro',
   'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos',
   'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha',
   'Santa Elena', 'Santo Domingo', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe',
 ];
+
+
 
 type ValoresFormulario = {
   nombre: string;
@@ -32,9 +36,18 @@ type ValoresFormulario = {
 };
 
 export default function PantallaRegistro() {
-  const { control, handleSubmit, setValue, watch } = useForm<ValoresFormulario>({
+  
+  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<ValoresFormulario>({
+    resolver: zodResolver(registroSchema),
     defaultValues: {
+      nombre: '',
+      email: '',
+      telefono: '',
+      direccion: '',
       provincia: '',
+      ciudad: '',
+      password: '',
+      confirmarPassword: '',
     },
   });
 
@@ -45,17 +58,39 @@ export default function PantallaRegistro() {
 
   const valorProvincia = watch('provincia');
 
-  const enviarFormulario = async(datos: ValoresFormulario) => {
-    if (datos.password !== datos.confirmarPassword) {
+  const enviarFormulario = async(data: ValoresFormulario) => {
+    if (data.password !== data.confirmarPassword) {
     Alert.alert('Error', 'Las contraseñas no coinciden');
     return;
   }
 
   try {
-    const respuesta = await registerUser(datos); // No excluyas confirmarPassword
-    Alert.alert('Registro exitoso', 'Ya puedes iniciar sesión');
-    console.log(respuesta);
+    const res = await registerUser(data);
+    console.log('Registro exitoso:', res);// No excluyas confirmarPassword
+    Alert.alert(
+    'Registro exitoso',
+    'Se ha enviado a tu correo un mensaje de activación de cuenta. Una vez validado, puedes iniciar sesión.',
+    [
+      {
+        text: 'OK',
+        onPress: () => {
+          setTimeout(() => {
+            router.replace('/login');
+          }, 100); // pequeño retraso para asegurar que la alerta se muestra
+        },
+      },
+    ]
+  );console.warn('¿Aparece la alerta?'); //Permite ver si sale la Alerta
   } catch (error: any) {
+    console.log('Error capturado en enviarFormulario:', error);
+    if (error.code === 'ECONNABORTED') {
+      Alert.alert(
+        'Registro posiblemente exitoso',
+        'Tu solicitud tardó más de lo esperado, pero puede haberse procesado. Verifica tu correo.'
+      );
+      return;
+    }
+
     Alert.alert('Error', error.message || 'No se pudo completar el registro');
   }
   };
@@ -67,26 +102,35 @@ export default function PantallaRegistro() {
       {[
         { name: 'nombre', placeholder: 'Nombre y Apellido' },
         { name: 'email', placeholder: 'Correo Electrónico', keyboardType: 'email-address' as const},
-        { name: 'telefono', placeholder: 'Teléfono', keyboardType: 'phone-pad' as const},
+        { name: 'telefono', placeholder: 'Teléfono', keyboardType: 'phone-pad' as const,isNumeric: true,},
         { name: 'direccion', placeholder: 'Dirección' },
         { name: 'password', placeholder: 'Contraseña', secureTextEntry: true },
         { name: 'confirmarPassword', placeholder: 'Confirmar Contraseña', secureTextEntry: true },
-      ].map(({ name, ...propsInput }) => (
+      ].map(({ name, isNumeric, ...propsInput }) => (
         <Controller
           key={name}
           control={control}
           name={name as keyof ValoresFormulario}
           render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={estilos.input}
-              onChangeText={onChange}
-              value={value}
-              placeholderTextColor="#aaa"
-              {...propsInput}
-            />
+            <>
+              <TextInput
+                style={estilos.input}
+                onChangeText={(text) => {
+                const processed = isNumeric ? text.replace(/[^0-9]/g, '') : text;
+                onChange(processed);
+                }}
+                value={value}
+                placeholderTextColor="#aaa"
+                {...propsInput}
+              />
+              {errors[name as keyof typeof errors] && (
+                <Text style={estilos.error}>{errors[name as keyof typeof errors]?.message}</Text>
+              )}
+            </>
           )}
         />
       ))}
+
 
       <Text style={estilos.etiqueta}>Provincia</Text>
       <Controller
@@ -119,6 +163,9 @@ export default function PantallaRegistro() {
               )}
               zIndex={1000}
             />
+            {errors.provincia && (
+              <Text style={estilos.error}>{errors.provincia.message}</Text>
+            )}
           </View>
         )}
       />
@@ -127,13 +174,18 @@ export default function PantallaRegistro() {
         control={control}
         name="ciudad"
         render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={estilos.input}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Ciudad"
-            placeholderTextColor="#aaa"
-          />
+          <>
+            <TextInput
+              style={estilos.input}
+              onChangeText={onChange}
+              value={value}
+              placeholder="Ciudad"
+              placeholderTextColor="#aaa"
+            />
+            {errors.ciudad && (
+              <Text style={estilos.error}>{errors.ciudad.message}</Text>
+            )}
+          </>
         )}
       />
 
@@ -200,4 +252,16 @@ const estilos = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  error: {
+    color: '#FF4D4D',
+    fontSize: 12,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  errorTexto: {
+  color: 'red',
+  fontSize: 13,
+  marginBottom: 8,
+  marginLeft: 5,
+},
 });
