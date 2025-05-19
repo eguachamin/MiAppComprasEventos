@@ -6,7 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Feather } from '@expo/vector-icons';
@@ -15,6 +15,10 @@ import { registerUser } from '../services/userService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registroSchema } from '../utils/validators'; 
 import { router } from "expo-router";
+import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
+import axios from 'axios';
+
+
 const provincias = [
   'Azuay', 'Bolívar', 'Cñar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro',
   'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos',
@@ -36,7 +40,8 @@ type ValoresFormulario = {
 };
 
 export default function PantallaRegistro() {
-  
+  const [showEmail_Existente_Modal, setShowEmail_Existente_Modal] = useState(false);
+
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<ValoresFormulario>({
     resolver: zodResolver(registroSchema),
     defaultValues: {
@@ -65,37 +70,28 @@ export default function PantallaRegistro() {
   }
 
   try {
-    const res = await registerUser(data);
-    console.log('Registro exitoso:', res);// No excluyas confirmarPassword
-    Alert.alert(
-    'Registro exitoso',
-    'Se ha enviado a tu correo un mensaje de activación de cuenta. Una vez validado, puedes iniciar sesión.',
-    [
-      {
-        text: 'OK',
-        onPress: () => {
-          setTimeout(() => {
-            router.replace('/login');
-          }, 100); // pequeño retraso para asegurar que la alerta se muestra
-        },
-      },
-    ]
-  );console.warn('¿Aparece la alerta?'); //Permite ver si sale la Alerta
-  } catch (error: any) {
+    const respuesta = await registerUser(data);
+    console.log('Registro exitoso:', respuesta);
+    router.replace('/registroExitoso');
+    } 
+  catch (error: any) 
+  {
     console.log('Error capturado en enviarFormulario:', error);
-    if (error.code === 'ECONNABORTED') {
-      Alert.alert(
-        'Registro posiblemente exitoso',
-        'Tu solicitud tardó más de lo esperado, pero puede haberse procesado. Verifica tu correo.'
-      );
-      return;
-    }
 
-    Alert.alert('Error', error.message || 'No se pudo completar el registro');
+    if (
+      error?.response?.data?.msg ===
+      'Lo sentimos, el email ya se encuentra registrado'
+    ) {
+      setShowEmail_Existente_Modal(true); // ← activa el modal
+    } else {
+      // Puedes mostrar otros errores o loguearlos
+      console.error('Error desconocido en registro:', error);
+    }
   }
   };
 
   return (
+    <>
     <ScrollView contentContainerStyle={estilos.contenidoScroll} style={estilos.contenedor}>
       <Text style={estilos.titulo}>Registro</Text>
 
@@ -192,7 +188,12 @@ export default function PantallaRegistro() {
       <TouchableOpacity style={estilos.boton} onPress={handleSubmit(enviarFormulario)}>
         <Text style={estilos.textoBoton}>Registrarse</Text>
       </TouchableOpacity>
+        
     </ScrollView>
+    {showEmail_Existente_Modal && (
+      <Email_Existente_Modal onClose={() => setShowEmail_Existente_Modal(false)} />
+    )}
+  </>
   );
 }
 
@@ -264,4 +265,5 @@ const estilos = StyleSheet.create({
   marginBottom: 8,
   marginLeft: 5,
 },
+
 });

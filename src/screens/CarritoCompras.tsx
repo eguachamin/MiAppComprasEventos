@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import CompraExitosaModal from '../screens/CompraExistosaModal'; // ajusta el path si es necesario
+import CompraExitosaModal from '../components/modals/CompraExistosaModal'; // ajusta el path si es necesario
 
 // Para mejor checkbox en Expo usa react-native-paper o react-native-checkbox
 // Aquí un ejemplo básico con TouchableOpacity para check

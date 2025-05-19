@@ -1,3 +1,3 @@
-import CompraExitosaModal from "@/screens/CompraExistosaModal";
+import CompraExitosaModal from "@/components/modals/CompraExistosaModal";
 
 export default CompraExitosaModal;
