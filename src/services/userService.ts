@@ -11,6 +11,10 @@ export interface RegistroPayload {
   password: string;
   confirmarPassword: string;
 }
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
 
 export const registerUser = async (payload: RegistroPayload) => {
   try {
@@ -20,6 +24,18 @@ export const registerUser = async (payload: RegistroPayload) => {
     return response.data;
   } catch (error: any) {
     console.error('Error en el registro:', error);
+    throw error;
+  }
+};
+
+export const loginUser = async (payload: LoginPayload) => {
+  try {
+    const response = await api.post('/cliente/login', payload);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error en el login:', error);
+
+    // Relanza el error para que el componente lo maneje
     throw error;
   }
 };
