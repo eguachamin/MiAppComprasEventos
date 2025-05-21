@@ -39,3 +39,14 @@ export const loginUser = async (payload: LoginPayload) => {
     throw error;
   }
 };
+
+export const getProductos = async () => {
+  try {
+    
+    const response = await api.get('/producto/listar');
+    return response.data;
+  } catch (error: any) {
+    console.error('Error al obtener productos:', error);
+    throw error;
+  }
+};

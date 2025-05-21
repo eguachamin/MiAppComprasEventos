@@ -10,47 +10,48 @@ import {
   Image,
   Switch,
 } from 'react-native';
+import { getProductos } from "../services/userService";
 
-const productosEjemplo = [
-  {
-    id: '1',
-    nombre: 'Vinilo Dorado',
-    artista: 'DJ Edwin',
-    genero: 'Electrónica',
-    precio: 25.99,
-    stock: 5,
-    imagen: 'https://via.placeholder.com/150',
-  },
-  {
-    id: '2',
-    nombre: 'Ritmos del Sur',
-    artista: 'Edwin Asqui',
-    genero: 'Reggaetón',
-    precio: 19.99,
-    stock: 0,
-    imagen: 'https://via.placeholder.com/150',
-  },
-  // Más productos...
-];
+interface Producto {
+  id: string;
+  nombre: string;
+  artista: string;
+  genero: string;
+  precio: number;
+  stock: number;
+  imagen: string;
+}
 
 export default function ComprarVinilos() {
   const [busqueda, setBusqueda] = useState('');
   const [mostrarSinStock, setMostrarSinStock] = useState(false);
-  const [productos, setProductos] = useState(productosEjemplo);
-  const [productosFiltrados, setProductosFiltrados] = useState(productosEjemplo);
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productosFiltrados, setProductosFiltrados] = useState<Producto[]>([]);
 
   useEffect(() => {
-    const filtrados = productos.filter((producto) => {
-      const texto = busqueda.toLowerCase();
-      const coincide =
-        producto.nombre.toLowerCase().includes(texto) ||
-        producto.artista.toLowerCase().includes(texto) ||
-        producto.genero.toLowerCase().includes(texto);
-      return coincide && (mostrarSinStock || producto.stock > 0);
-    });
-    setProductosFiltrados(filtrados);
-  }, [busqueda, mostrarSinStock, productos]);
+  const cargarProductos = async () => {
+    try {
+      const data = await getProductos();
+      console.log('Datos crudos del backend:', data);
+      const adaptados:Producto[] = data.map((producto: any) => ({
+        id: producto._id,
+        nombre: producto.nombreDisco,
+        artista: producto.artista,
+        genero: producto.genero,
+        precio: producto.precio,
+        stock: producto.stock,
+        imagen: producto.imagen,
+      }));
+      setProductos(adaptados);
+      setProductosFiltrados(adaptados); 
+    } catch (error) {
+      console.error('No se pudo cargar el catálogo.');
+    }
+  };
 
+  cargarProductos();
+}, []);
+  console.log('Productos filtrados:', productosFiltrados);
   return (
     <View style={estilos.contenedor}>
       <Text style={estilos.titulo}>Catálogo de Vinilos</Text>
@@ -75,7 +76,7 @@ export default function ComprarVinilos() {
 
       <FlatList
         data={productosFiltrados}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={estilos.lista}
         renderItem={({ item }) => (
           <View style={estilos.card}>
