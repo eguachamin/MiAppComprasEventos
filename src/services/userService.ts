@@ -57,3 +57,8 @@ export const reenviarCorreoVerificacion = async (payload: VerificiacionPayload) 
   const response = await api.post('/cliente/reenviar-confirmacion', payload);
   return response.data;
 };
+
+export const recuperarPassword = async (email: string) => {
+  const res = await api.post('/cliente/recuperar-password', { email });
+  return res.data;
+};

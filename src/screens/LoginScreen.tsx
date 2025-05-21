@@ -7,6 +7,7 @@ import { loginUser, reenviarCorreoVerificacion } from '../services/userService';
 import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
+import RecuperarPasswordModal from '../components/modals/RecuperarPasswordModal';
 
 type FormData = {
   email: string;
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [correoPendiente, setCorreoPendiente] = useState('');
   const [reenviando, setReenviando] = useState(false);
   const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
+  const [mostrarModalRecuperar, setMostrarModalRecuperar] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -112,8 +114,12 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
         <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => router.push('/register')}>
+      <TouchableOpacity onPress={() => setMostrarModalRecuperar(true)}>
+        <Text style={styles.registerText}>
+          ¿Olvidaste tu contraseña? <Text style={styles.highlight}>Da clic aquí</Text>
+        </Text>
+      </TouchableOpacity>
+       <TouchableOpacity onPress={() => router.push('/register')}>
         <Text style={styles.registerText}>
           ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
         </Text>
@@ -128,6 +134,10 @@ export default function LoginScreen() {
           visible={showCorreoEnviado}
           onClose={() => setShowCorreoEnviado(false)}
         />
+      <RecuperarPasswordModal
+        visible={mostrarModalRecuperar}
+        onClose={() => setMostrarModalRecuperar(false)}
+      />
     </View>
   );
 }
