@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ScrollView,
@@ -16,14 +15,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registroSchema } from '../utils/validators'; 
 import { router } from "expo-router";
 import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
-import axios from 'axios';
-
+import React, { useState, useEffect } from 'react';
+import { provinciasConCiudades } from "../utils/provinciasCiudades";
 
 const provincias = [
-  'Azuay', 'Bolívar', 'Cñar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro',
-  'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos',
-  'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha',
-  'Santa Elena', 'Santo Domingo', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe',
+  'Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El_Oro',
+  'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los_Ríos',
+  'Manabí', 'Morona_Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha',
+  'Santa_Elena', 'Santo_Domingo', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe',
 ];
 
 
@@ -56,12 +55,31 @@ export default function PantallaRegistro() {
     },
   });
 
-  const [abierto, setAbierto] = useState(false);
-  const [items, setItems] = useState(
-    provincias.map((prov) => ({ label: prov, value: prov }))
-  );
-
+  const [ciudadOpen, setCiudadOpen] = useState(false);
+  const [ciudadItems, setCiudadItems] = useState<{ label: string; value: string }[]>([]);
+  const valorCiudad = watch('ciudad');
+  const [provinciaOpen, setProvinciaOpen] = useState(false);
   const valorProvincia = watch('provincia');
+  useEffect(() => {
+  if (provinciaOpen) {
+    setCiudadOpen(false);
+  }
+}, [provinciaOpen]);
+
+useEffect(() => {
+  if (ciudadOpen) {
+    setProvinciaOpen(false);
+  }
+}, [ciudadOpen]);
+
+  useEffect(() => {
+    if (valorProvincia) {
+      const ciudades = provinciasConCiudades[valorProvincia] || [];
+      setCiudadItems(ciudades.map((c) => ({ label: c, value: c })));
+      setValue('ciudad', ''); // Limpia ciudad anterior si cambia provincia
+      console.log(provinciasConCiudades[valorProvincia])
+    }
+  }, [valorProvincia]);
 
   const enviarFormulario = async(data: ValoresFormulario) => {
     if (data.password !== data.confirmarPassword) {
@@ -92,7 +110,7 @@ export default function PantallaRegistro() {
 
   return (
     <>
-    <ScrollView contentContainerStyle={estilos.contenidoScroll} style={estilos.contenedor}>
+    <ScrollView contentContainerStyle={estilos.contenidoScroll} style={[estilos.contenedor, { zIndex: 0 }]}>
       <Text style={estilos.titulo}>Registro</Text>
 
       {[
@@ -126,25 +144,23 @@ export default function PantallaRegistro() {
           )}
         />
       ))}
-
-
+      <View style={{ zIndex: provinciaOpen ? 3000 : 600 }}>
       <Text style={estilos.etiqueta}>Provincia</Text>
       <Controller
         control={control}
         name="provincia"
-        render={({ field: { onChange } }) => (
+        render={({ field: { onChange, value } }) => (
           <View style={estilos.contenedorDropdown}>
             <DropDownPicker
-              open={abierto}
-              value={valorProvincia}
-              items={items}
-              setOpen={setAbierto}
+              open={provinciaOpen}
+              value={value}
+              items={provincias.map((p) => ({ label: p.replace('_', ' '), value: p }))}
+              setOpen={setProvinciaOpen}
               setValue={(callback) => {
-                const result = callback(valorProvincia);
+                const result = callback(value);
                 setValue('provincia', result);
                 onChange(result);
               }}
-              setItems={setItems}
               placeholder="Selecciona una provincia"
               style={estilos.dropdown}
               dropDownContainerStyle={estilos.contenedorDropDown}
@@ -165,27 +181,48 @@ export default function PantallaRegistro() {
           </View>
         )}
       />
-
+      </View>
+      <View style={{ zIndex: ciudadOpen ? 2000 : 500 }}>
+      <Text style={estilos.etiqueta}>Ciudad</Text>
       <Controller
         control={control}
         name="ciudad"
         render={({ field: { onChange, value } }) => (
-          <>
-            <TextInput
-              style={estilos.input}
-              onChangeText={onChange}
+          <View style={estilos.contenedorDropdown}>
+            <DropDownPicker
+              open={ciudadOpen}
               value={value}
-              placeholder="Ciudad"
-              placeholderTextColor="#aaa"
+              items={ciudadItems}
+              setOpen={setCiudadOpen}
+              setValue={(callback) => {
+                const result = callback(value);
+                setValue('ciudad', result);
+                onChange(result);
+              }}
+              setItems={setCiudadItems}
+              placeholder="Selecciona una ciudad"
+              disabled={!valorProvincia}
+              style={estilos.dropdown}
+              dropDownContainerStyle={estilos.contenedorDropDown}
+              textStyle={{ color: 'white' }}
+              placeholderStyle={{ color: '#aaa' }}
+              listItemLabelStyle={{ color: 'white' }}
+              ArrowDownIconComponent={() => (
+                <Feather name="chevron-down" size={20} color="#FFD700" />
+              )}
+              ArrowUpIconComponent={() => (
+                <Feather name="chevron-up" size={20} color="#FFD700" />
+              )}
+              zIndex={900}
             />
             {errors.ciudad && (
               <Text style={estilos.error}>{errors.ciudad.message}</Text>
             )}
-          </>
+          </View>
         )}
       />
-
-      <TouchableOpacity style={estilos.boton} onPress={handleSubmit(enviarFormulario)}>
+      </View>
+        <TouchableOpacity style={estilos.boton} onPress={handleSubmit(enviarFormulario)}>
         <Text style={estilos.textoBoton}>Registrarse</Text>
       </TouchableOpacity>
         
@@ -232,6 +269,7 @@ const estilos = StyleSheet.create({
   },
   contenedorDropdown: {
     zIndex: 1000,
+    position: 'relative',
   },
   dropdown: {
     backgroundColor: '#1a1a1a',
