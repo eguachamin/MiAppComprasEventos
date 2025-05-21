@@ -22,6 +22,9 @@ interface Producto {
   imagen: string;
 }
 
+const normalizarTexto = (texto: string) =>
+  texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 export default function ComprarVinilos() {
   const [busqueda, setBusqueda] = useState('');
   const [mostrarSinStock, setMostrarSinStock] = useState(false);
@@ -51,6 +54,26 @@ export default function ComprarVinilos() {
 
   cargarProductos();
 }, []);
+  useEffect(() => {
+    const textoBusqueda = normalizarTexto(busqueda);
+
+    const filtrados = productos.filter((producto) => {
+      const nombre = normalizarTexto(producto.nombre);
+      const artista = normalizarTexto(producto.artista);
+      const genero = normalizarTexto(producto.genero);
+
+      const coincideBusqueda =
+        nombre.includes(textoBusqueda) ||
+        artista.includes(textoBusqueda) ||
+        genero.includes(textoBusqueda);
+
+      const cumpleStock = mostrarSinStock ? true : producto.stock > 0;
+
+      return coincideBusqueda && cumpleStock;
+    });
+
+    setProductosFiltrados(filtrados);
+  }, [busqueda, mostrarSinStock, productos]);
   console.log('Productos filtrados:', productosFiltrados);
   return (
     <View style={estilos.contenedor}>
@@ -73,7 +96,11 @@ export default function ComprarVinilos() {
           trackColor={{ false: '#555', true: '#FFD700' }}
         />
       </View>
-
+      {productosFiltrados.length === 0 && (
+        <Text style={{ color: '#fff', textAlign: 'center', marginVertical: 10 }}>
+          No se encontraron productos con los filtros actuales.
+        </Text>
+      )}
       <FlatList
         data={productosFiltrados}
         keyExtractor={(item) => item.id.toString()}
