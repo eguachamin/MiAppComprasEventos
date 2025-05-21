@@ -15,6 +15,9 @@ export interface LoginPayload {
   email: string;
   password: string;
 }
+export interface VerificiacionPayload {
+  email: string;
+}
 
 export const registerUser = async (payload: RegistroPayload) => {
   try {
@@ -49,4 +52,8 @@ export const getProductos = async () => {
     console.error('Error al obtener productos:', error);
     throw error;
   }
+};
+export const reenviarCorreoVerificacion = async (payload: VerificiacionPayload) => {
+  const response = await api.post('/cliente/reenviar-confirmacion', payload);
+  return response.data;
 };

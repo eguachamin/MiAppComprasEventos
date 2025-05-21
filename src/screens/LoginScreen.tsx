@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { loginUser } from '../services/userService';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
+import { loginUser, reenviarCorreoVerificacion } from '../services/userService';
 import { useAuthStore } from '../store/authStore';
+import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
+import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
 
 type FormData = {
   email: string;
@@ -15,8 +17,13 @@ export default function LoginScreen() {
   const { control, handleSubmit } = useForm<FormData>();
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
-  const [errorMsg, setErrorMsg] = React.useState('');
-  const [showPassword, setShowPassword] = React.useState(false);
+
+  const [errorMsg, setErrorMsg] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [correoPendiente, setCorreoPendiente] = useState('');
+  const [reenviando, setReenviando] = useState(false);
+  const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -25,10 +32,30 @@ export default function LoginScreen() {
       router.replace('/home');
     } catch (error: any) {
       const msg = error?.response?.data?.msg || 'Error al iniciar sesión';
-      setErrorMsg(msg);
+      console.log('Error en el login:', error);  // Asegúrate de ver esto en consola
+      if (msg.toLowerCase().includes('verificar')) {
+        setCorreoPendiente(data.email);
+        setIsModalVisible(true);
+      } else {
+        setErrorMsg(msg);
+      }
     }
   };
 
+  const handleReenviarCorreo = async () => {
+    try {
+      setReenviando(true);
+      await reenviarCorreoVerificacion({ email: correoPendiente });
+      console.log('Correo de verificación reenviado con éxito');
+      setShowCorreoEnviado(true);  // Aquí muestras el modal
+      setIsModalVisible(false);    // Cierra modal de confirmación
+    } catch (error) {
+      alert('No se pudo reenviar el correo');
+    } finally {
+      setReenviando(false);
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <Image
@@ -91,6 +118,16 @@ export default function LoginScreen() {
           ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
         </Text>
       </TouchableOpacity>
+
+      <CorreoNoVerificado_Modal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        onReenviar={handleReenviarCorreo}
+      />
+        <CorreoEnviado_Modal
+          visible={showCorreoEnviado}
+          onClose={() => setShowCorreoEnviado(false)}
+        />
     </View>
   );
 }
