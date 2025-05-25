@@ -3,13 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuthStore } from '@/store/authStore';
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const menuItems = [
     { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
-    { label: 'Carrito', iconName: 'shopping-cart', route: '/carrito' },
+    { label: 'Mis Compras', iconName: 'shopping-bag', route: '/carrito' },
     { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario' },
     { label: 'Sobre el DJ', iconName: 'info', route: '/vinilo' },
   ];
@@ -21,9 +22,17 @@ export default function HomeScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.title}>🎧 DJ Edwin</Text>
+        <View style={{ flexDirection: 'row', gap: 15 }}>
         <TouchableOpacity onPress={() => console.log('Notificaciones')}>
           <Feather name="bell" size={26} color="#FFD700" />
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => {
+          useAuthStore.getState().logout();
+          router.replace('/login');
+        }}>
+          <Feather name="log-out" size={26} color="#FFD700" />
+        </TouchableOpacity>
+      </View>
       </View>
 
       <Text style={styles.subtitle}>¡Bienvenido a tu universo musical!</Text>

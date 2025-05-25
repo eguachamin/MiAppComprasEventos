@@ -11,6 +11,8 @@ import {
   Switch,
 } from 'react-native';
 import { getProductos } from "../services/userService";
+import Feather from '@expo/vector-icons/Feather'; //  
+import { router } from 'expo-router';
 
 interface Producto {
   id: string;
@@ -26,6 +28,7 @@ const normalizarTexto = (texto: string) =>
   texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 export default function ComprarVinilos() {
+  const [cantidades, setCantidades] = useState<{ [id: string]: number }>({});
   const [busqueda, setBusqueda] = useState('');
   const [mostrarSinStock, setMostrarSinStock] = useState(false);
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -75,56 +78,95 @@ export default function ComprarVinilos() {
     setProductosFiltrados(filtrados);
   }, [busqueda, mostrarSinStock, productos]);
   console.log('Productos filtrados:', productosFiltrados);
+  
+  
+  const actualizarCantidad = (id: string, nuevaCantidad: number) => {
+  setCantidades(prev => ({ ...prev, [id]: nuevaCantidad }));
+    };
+
+
   return (
-    <View style={estilos.contenedor}>
-      <Text style={estilos.titulo}>Catálogo de Vinilos</Text>
+  <View style={estilos.contenedor}>
+    <Text style={estilos.titulo}>Catálogo de Vinilos</Text>
 
-      <TextInput
-        style={estilos.inputBusqueda}
-        placeholder="Buscar por nombre, artista o género"
-        placeholderTextColor="#aaa"
-        value={busqueda}
-        onChangeText={setBusqueda}
+    <TouchableOpacity onPress={() => router.replace('/carrito')}>
+      <Feather name="shopping-cart" size={26} color="#FFD700" />
+    </TouchableOpacity>
+    <br />
+    <TextInput
+      style={estilos.inputBusqueda}
+      placeholder="Buscar por nombre, artista o género"
+      placeholderTextColor="#aaa"
+      value={busqueda}
+      onChangeText={setBusqueda}
+    />
+
+    <View style={estilos.filtroContainer}>
+      <Text style={estilos.etiquetaFiltro}>Mostrar productos sin stock</Text>
+      <Switch
+        value={mostrarSinStock}
+        onValueChange={setMostrarSinStock}
+        thumbColor={mostrarSinStock ? '#FFD700' : '#777'}
+        trackColor={{ false: '#555', true: '#FFD700' }}
       />
+    </View>
 
-      <View style={estilos.filtroContainer}>
-        <Text style={estilos.etiquetaFiltro}>Mostrar productos sin stock</Text>
-        <Switch
-          value={mostrarSinStock}
-          onValueChange={setMostrarSinStock}
-          thumbColor={mostrarSinStock ? '#FFD700' : '#777'}
-          trackColor={{ false: '#555', true: '#FFD700' }}
-        />
-      </View>
-      {productosFiltrados.length === 0 && (
-        <Text style={{ color: '#fff', textAlign: 'center', marginVertical: 10 }}>
-          No se encontraron productos con los filtros actuales.
-        </Text>
-      )}
-      <FlatList
-        data={productosFiltrados}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={estilos.lista}
-        renderItem={({ item }) => (
-          <View style={estilos.card}>
-            <Image source={{ uri: item.imagen }} style={estilos.imagen} />
-            <Text style={estilos.nombre}>{item.nombre}</Text>
-            <Text style={estilos.detalle}>Artista: {item.artista}</Text>
-            <Text style={estilos.detalle}>Género: {item.genero}</Text>
-            <Text style={estilos.detalle}>Precio: ${item.precio}</Text>
-            <Text style={estilos.detalle}>Stock: {item.stock}</Text>
-            {item.stock > 0 ? (
+    {productosFiltrados.length === 0 && (
+      <Text style={{ color: '#fff', textAlign: 'center', marginVertical: 10 }}>
+        No se encontraron productos con los filtros actuales.
+      </Text>
+    )}
+
+    <FlatList
+      data={productosFiltrados}
+      keyExtractor={(item) => item.id.toString()}
+      contentContainerStyle={estilos.lista}
+      renderItem={({ item }) => (
+        <View style={estilos.card}>
+          <Image source={{ uri: item.imagen }} style={estilos.imagen} />
+          <Text style={estilos.nombre}>{item.nombre}</Text>
+          <Text style={estilos.detalle}>Artista: {item.artista}</Text>
+          <Text style={estilos.detalle}>Género: {item.genero}</Text>
+          <Text style={estilos.detalle}>Precio: ${item.precio}</Text>
+          <Text style={estilos.detalle}>Stock: {item.stock}</Text>
+
+          {item.stock > 0 ? (
+            <>
+              <View style={estilos.selectorCantidadContainer}>
+                <Text style={estilos.detalle}>Cantidad:</Text>
+                <View style={estilos.controlesCantidad}>
+                  <TouchableOpacity
+                    style={estilos.botonCantidad}
+                    onPress={() =>
+                      actualizarCantidad(item.id, Math.max(1, (cantidades[item.id] || 1) - 1))
+                    }
+                  >
+                    <Text style={estilos.textoCantidad}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={estilos.cantidad}>{cantidades[item.id] || 1}</Text>
+                  <TouchableOpacity
+                    style={estilos.botonCantidad}
+                    onPress={() =>
+                      actualizarCantidad(item.id, Math.min(item.stock, (cantidades[item.id] || 1) + 1))
+                    }
+                  >
+                    <Text style={estilos.textoCantidad}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <TouchableOpacity style={estilos.boton}>
                 <Text style={estilos.textoBoton}>Agregar al carrito</Text>
               </TouchableOpacity>
-            ) : (
-              <Text style={estilos.sinStock}>Próximamente en stock</Text>
-            )}
-          </View>
-        )}
-      />
-    </View>
-  );
+            </>
+          ) : (
+            <Text style={estilos.sinStock}>Próximamente en stock</Text>
+          )}
+        </View>
+      )}
+    />
+  </View>
+);
 }
 
 const estilos = StyleSheet.create({
@@ -202,4 +244,28 @@ const estilos = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+    selectorCantidadContainer: {
+  marginTop: 10,
+},
+controlesCantidad: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginVertical: 5,
+},
+botonCantidad: {
+  backgroundColor: '#333',
+  padding: 8,
+  borderRadius: 6,
+},
+textoCantidad: {
+  color: '#fff',
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+cantidad: {
+  color: '#fff',
+  marginHorizontal: 10,
+  fontSize: 16,
+},
 });
