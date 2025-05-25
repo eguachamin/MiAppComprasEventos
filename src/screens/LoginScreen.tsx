@@ -30,7 +30,9 @@ export default function LoginScreen() {
   const onSubmit = async (data: FormData) => {
     try {
       const res = await loginUser(data);
-      await login(res.token, res.usuario);
+      console.log('Respuesta login:', res); 
+      const { token, _id, ...userData } = res;
+      await login(token, { id: _id, ...userData });
       router.replace('/home');
     } catch (error: any) {
       const msg = error?.response?.data?.msg || 'Error al iniciar sesión';
