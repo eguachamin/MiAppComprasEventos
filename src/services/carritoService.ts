@@ -31,24 +31,28 @@ export interface Carrito {
   updatedAt: string;
   __v: number;
 }
-export const agregarAlCarrito = async ( productoId: string, cantidad: number = 1) => {
+export const agregarAlCarrito = async (
+  productoId: string,
+  cantidad: number = 1
+) => {
   const { token } = useAuthStore.getState();
   if (!token) throw new Error("No autenticado");
   try {
-    const response = await api.post( "/carrito/agregar",
+    const response = await api.post(
+      "/carrito/agregar",
       {
-        productos: [{productoId,cantidad,},],
+        productos: [{ productoId, cantidad }],
       },
       {
-        headers: {Authorization: `Bearer ${token}`,},
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
 
     return response.data;
-  } catch (error:any) {
+  } catch (error: any) {
     const mensaje = error.response?.data?.msg || "Error al agregar al carrito";
     console.error("Error al agregar al carrito:", mensaje);
-    throw new Error(mensaje); 
+    throw new Error(mensaje);
   }
 };
 
@@ -65,12 +69,15 @@ export const obtenerCarrito = async (): Promise<Carrito> => {
   return response.data as Carrito; // 👈 ahora devuelve el objeto completo
 };
 
-export const actualizarCantidadProducto = async (productoId: string, nuevaCantidad: number) => {
+export const actualizarCantidadProducto = async (
+  productoId: string,
+  nuevaCantidad: number
+) => {
   const { token } = useAuthStore.getState();
-  if (!token) throw new Error('No autenticado');
+  if (!token) throw new Error("No autenticado");
 
   const response = await api.put(
-    '/carrito/actualizar',
+    "/carrito/actualizar",
     { productoId, nuevaCantidad },
     {
       headers: {

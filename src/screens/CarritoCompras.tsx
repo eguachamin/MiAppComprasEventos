@@ -39,7 +39,7 @@ export default function CarritoCompras() {
   const [modalCompraExitosaVisible, setModalCompraExitosaVisible] =
     useState(false);
   //Subir Documentos
-  const [comprobante, setComprobante] = useState(null);
+  const [comprobante, setComprobante] = useState<string | null>(null);
   // Informacion del cliente
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -133,6 +133,22 @@ export default function CarritoCompras() {
 
     setTotal(subtotal + costoEnvio);
   }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
+
+  //Funciones 
+  const seleccionarImagen = async () => {
+      const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images', 
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      base64:false,
+    });
+
+    if (!resultado.canceled) {
+      setComprobante(resultado.assets[0].uri);
+      console.log("URI del comprobante:", resultado.assets[0].uri);
+    }
+  };
 
   const actualizarCantidad = async (index: number, nuevaCantidad: number) => {
     if (nuevaCantidad < 1) return;
@@ -502,7 +518,7 @@ export default function CarritoCompras() {
           {zonaSurServientre && (
             <View style={styles.comprobanteContainer}>
               <Text style={styles.label}>Subir Comprobante de Pago</Text>
-              <TouchableOpacity style={styles.botonSubir}>
+              <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
                 <Text style={styles.textoBoton}>Seleccionar archivo</Text>
               </TouchableOpacity>
             </View>
@@ -553,7 +569,7 @@ export default function CarritoCompras() {
               {formaPago === "transferencia" && (
                 <View style={styles.comprobanteContainer}>
                   <Text style={styles.label}>Subir Comprobante</Text>
-                  <TouchableOpacity style={styles.botonSubir}>
+                  <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
                     <Text style={styles.textoBoton}>Seleccionar archivo</Text>
                   </TouchableOpacity>
                 </View>
@@ -588,7 +604,7 @@ export default function CarritoCompras() {
       {envioProvincia && (
         <View style={styles.comprobanteContainer}>
           <Text style={styles.label}>Subir Comprobante de Pago</Text>
-          <TouchableOpacity style={styles.botonSubir}>
+          <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
             <Text style={styles.textoBoton}>Seleccionar archivo</Text>
           </TouchableOpacity>
         </View>
