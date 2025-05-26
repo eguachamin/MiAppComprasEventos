@@ -5,6 +5,7 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 export default function ModalMensaje({ visible, mensaje, onClose }: {
   visible: boolean;
   mensaje: string;
+  tipo?: 'exito' | 'error';
   onClose: () => void;
 }) {
   if (!visible) return null;
