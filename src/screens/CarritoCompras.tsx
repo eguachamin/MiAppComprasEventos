@@ -28,7 +28,9 @@ type ProductoCarrito = {
 };
 
 export default function CarritoCompras() {
+  //Para cambiar de página
   const route = useRouter();
+  // Modales
   const [modalMensajeVisible, setModalMensajeVisible] = useState(false);
   const [modalMensajeTexto, setModalMensajeTexto] = useState("");
   const [modalMensajeTipo, setModalMensajeTipo] = useState<"exito" | "error">(
@@ -36,34 +38,51 @@ export default function CarritoCompras() {
   );
   const [modalCompraExitosaVisible, setModalCompraExitosaVisible] =
     useState(false);
-
+  //Subir Documentos
   const [comprobante, setComprobante] = useState(null);
-  const [carrito, setCarrito] = useState<Carrito | null>(null);
-  // ✅ Hooks válidos dentro del componente
+  // Informacion del cliente
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
+  //Informacion de direccion
   const [callePrincipal, setCallePrincipal] = useState("");
   const [calleSecundaria, setCalleSecundaria] = useState("");
   const [numeracion, setNumeracion] = useState("");
   const [referencia, setReferencia] = useState("");
   const [provincia, setProvincia] = useState("");
   const [ciudad, setCiudad] = useState("");
+  //Informacion para el envio
   const [cedula, setCedula] = useState("");
+  const [nombreRecibe, setNombreRecibe] = useState("");
+  //Informacio de Productos
   const [productos, setProductos] = useState<ProductoCarrito[]>([]);
+  const [carrito, setCarrito] = useState<Carrito | null>(null);
+  //Informacion y checkbox de Envio
   const [envioQuito, setEnvioQuito] = useState(false);
   const [envioProvincia, setEnvioProvincia] = useState(false);
-  const [formaPago, setFormaPago] = useState<"efectivo" | "transferencia" | "">(
+  const [zonaSurServientre, setZonaSurServientre] = useState(false);
+  const [zonaOtra, setZonaOtra] = useState(false);
+  // Forma de pago cuando encuentro en lugar público
+  const [formaPago, setFormaPago] = useState<"" | "efectivo" | "transferencia">(
     ""
   );
+  //Estados en valores
+  const [total, setTotal] = useState(0); // Total base sin envío
+  const [subtotal, setSubtotal] = useState(0);
+  //Verificar
   const [nombreTitular, setNombreTitular] = useState("");
   const [apellidosTitular, setApellidosTitular] = useState("");
-  const subtotal = productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
-  const costoEnvio = (envioQuito ? 4 : 0) + (envioProvincia ? 6 : 0);
-  const total = subtotal + costoEnvio;
-  const [nombreRecibe, setNombreRecibe] = useState("");
-  // ✅ Estas funciones ahora sí pueden acceder al estado
-  //con esta funcion yo cargo los datos del cliente
+
+  // Calcula el costo de envío según selección
+  const costoEnvioQuito = zonaSurServientre ? 3.5 : 0; // solo Sur Servientre +$3.50
+  const costoEnvioProvincia = 6;
+  // Calcula total dinámico
+  const totalConEnvio = envioQuito
+    ? subtotal + costoEnvioQuito
+    : envioProvincia
+    ? subtotal + costoEnvioProvincia
+    : subtotal;
+
   useEffect(() => {
     const cargarDatosCliente = async () => {
       try {
@@ -78,6 +97,7 @@ export default function CarritoCompras() {
 
     cargarDatosCliente();
   }, []);
+
   useEffect(() => {
     const fetchCarrito = async () => {
       try {
@@ -99,6 +119,20 @@ export default function CarritoCompras() {
 
     fetchCarrito();
   }, []);
+
+  useEffect(() => {
+    const nuevoSubtotal = productos.reduce((acc, item) => {
+    return acc + item.precio * item.cantidad;
+  }, 0);
+  setSubtotal(nuevoSubtotal);
+}, [productos]);
+
+  useEffect(() => {
+    const costoEnvio =
+      envioQuito && zonaSurServientre ? 3.5 : envioProvincia ? 6 : 0;
+
+    setTotal(subtotal + costoEnvio);
+  }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
 
   const actualizarCantidad = async (index: number, nuevaCantidad: number) => {
     if (nuevaCantidad < 1) return;
@@ -398,12 +432,16 @@ export default function CarritoCompras() {
 
       <Text style={styles.titulo}>Envío</Text>
 
+      {/* OPCIÓN QUITO */}
       <View style={styles.checkboxFila}>
         <TouchableOpacity
           style={styles.checkbox}
           onPress={() => {
-            setEnvioQuito(!envioQuito);
-            if (envioProvincia && !envioQuito) setEnvioProvincia(false); // solo uno a la vez
+            setEnvioQuito(true);
+            setEnvioProvincia(false);
+            setZonaSurServientre(false);
+            setZonaOtra(false);
+            setFormaPago("");
           }}
         >
           <View
@@ -413,15 +451,128 @@ export default function CarritoCompras() {
             ]}
           />
         </TouchableOpacity>
-        <Text style={styles.checkboxTexto}>Quito + $4</Text>
+        <Text style={styles.checkboxTexto}>Quito</Text>
       </View>
 
+      {/* OPCIONES DENTRO DE QUITO */}
+      {envioQuito && (
+        <View style={styles.seccionInterna}>
+          <View style={styles.checkboxFila}>
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => {
+                setZonaSurServientre(!zonaSurServientre);
+                if (!zonaSurServientre) {
+                  setZonaOtra(false);
+                  setFormaPago("");
+                }
+              }}
+            >
+              <View
+                style={[
+                  styles.cuadroCheck,
+                  zonaSurServientre && styles.cuadroCheckSeleccionado,
+                ]}
+              />
+            </TouchableOpacity>
+            <Text style={styles.checkboxTexto}>Servientrega (Sur) +$3.50</Text>
+          </View>
+
+          <View style={styles.checkboxFila}>
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => {
+                setZonaOtra(!zonaOtra);
+                if (!zonaOtra) {
+                  setZonaSurServientre(false);
+                  setFormaPago("");
+                }
+              }}
+            >
+              <View
+                style={[
+                  styles.cuadroCheck,
+                  zonaOtra && styles.cuadroCheckSeleccionado,
+                ]}
+              />
+            </TouchableOpacity>
+            <Text style={styles.checkboxTexto}>Encuentro en lugar público</Text>
+          </View>
+
+          {zonaSurServientre && (
+            <View style={styles.comprobanteContainer}>
+              <Text style={styles.label}>Subir Comprobante de Pago</Text>
+              <TouchableOpacity style={styles.botonSubir}>
+                <Text style={styles.textoBoton}>Seleccionar archivo</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {zonaOtra && (
+            <>
+              <Text style={styles.titulo}>Forma de Pago</Text>
+
+              <View style={styles.checkboxFila}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() =>
+                    setFormaPago(formaPago === "efectivo" ? "" : "efectivo")
+                  }
+                >
+                  <View
+                    style={[
+                      styles.cuadroCheck,
+                      formaPago === "efectivo" &&
+                        styles.cuadroCheckSeleccionado,
+                    ]}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.checkboxTexto}>Efectivo</Text>
+              </View>
+
+              <View style={styles.checkboxFila}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() =>
+                    setFormaPago(
+                      formaPago === "transferencia" ? "" : "transferencia"
+                    )
+                  }
+                >
+                  <View
+                    style={[
+                      styles.cuadroCheck,
+                      formaPago === "transferencia" &&
+                        styles.cuadroCheckSeleccionado,
+                    ]}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.checkboxTexto}>Transferencia</Text>
+              </View>
+
+              {formaPago === "transferencia" && (
+                <View style={styles.comprobanteContainer}>
+                  <Text style={styles.label}>Subir Comprobante</Text>
+                  <TouchableOpacity style={styles.botonSubir}>
+                    <Text style={styles.textoBoton}>Seleccionar archivo</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
+        </View>
+      )}
+
+      {/* OPCIÓN PROVINCIA */}
       <View style={styles.checkboxFila}>
         <TouchableOpacity
           style={styles.checkbox}
           onPress={() => {
-            setEnvioProvincia(!envioProvincia);
-            if (envioQuito && !envioProvincia) setEnvioQuito(false); // solo uno a la vez
+            setEnvioProvincia(true);
+            setEnvioQuito(false);
+            setZonaSurServientre(false);
+            setZonaOtra(false);
+            setFormaPago("");
           }}
         >
           <View
@@ -434,52 +585,20 @@ export default function CarritoCompras() {
         <Text style={styles.checkboxTexto}>Provincia + $6</Text>
       </View>
 
-      <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
-
-      <Text style={styles.titulo}>Forma de Pago</Text>
-      <View style={styles.checkboxFila}>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() =>
-            setFormaPago(formaPago === "efectivo" ? "" : "efectivo")
-          }
-        >
-          <View
-            style={[
-              styles.cuadroCheck,
-              formaPago === "efectivo" && styles.cuadroCheckSeleccionado,
-            ]}
-          />
-        </TouchableOpacity>
-        <Text style={styles.checkboxTexto}>Efectivo</Text>
-      </View>
-
-      <View style={styles.checkboxFila}>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() =>
-            setFormaPago(formaPago === "transferencia" ? "" : "transferencia")
-          }
-        >
-          <View
-            style={[
-              styles.cuadroCheck,
-              formaPago === "transferencia" && styles.cuadroCheckSeleccionado,
-            ]}
-          />
-        </TouchableOpacity>
-        <Text style={styles.checkboxTexto}>Transferencia</Text>
-      </View>
-
-      {formaPago === "transferencia" && (
+      {envioProvincia && (
         <View style={styles.comprobanteContainer}>
-          <Text style={styles.label}>Subir Comprobante</Text>
+          <Text style={styles.label}>Subir Comprobante de Pago</Text>
           <TouchableOpacity style={styles.botonSubir}>
             <Text style={styles.textoBoton}>Seleccionar archivo</Text>
           </TouchableOpacity>
-          <br />
         </View>
       )}
+
+      {/* TOTAL GENERAL */}
+      <View style={styles.totalContainer}>
+        <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
+      </View>
+      <br />
       <TouchableOpacity
         onPress={() => setProductos([])}
         style={[styles.botonPedidos, { backgroundColor: "red" }]}
@@ -628,7 +747,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
+  totalContainer: {
+  marginTop: 20,
+  padding: 15,
+  backgroundColor: "#1a1a1a", // fondo negro elegante
+  borderRadius: 10,
+  alignItems: "center",
+  justifyContent: "center",
+  borderWidth: 1,
+  borderColor: "#FFD700", // dorado brillante
+},
+
+seccionInterna: {
+  paddingLeft: 20,
+  marginTop: 10,
+  marginBottom: 10,
+  borderLeftWidth: 2,
+  borderColor: "#FFD700", // dorado como marcador
+},
 });
-function setMensajeModal(arg0: string) {
-  throw new Error("Function not implemented.");
-}
+
