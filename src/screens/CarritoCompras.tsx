@@ -211,7 +211,31 @@ export default function CarritoCompras() {
       setTimeout(() => setModalMensajeVisible(false), 3000);
     }
   };
+  const vaciarCarrito = async () => {
+    try {
+      if (!carrito || carrito.productos.length === 0) return;
 
+      // Elimina uno a uno
+      for (const item of carrito.productos) {
+        await eliminarProductoDelCarrito(item.producto._id);
+      }
+
+      // Limpia estados del frontend
+      setCarrito({ ...carrito, productos: [], total: 0 });
+      setProductos([]);
+
+      setModalMensajeTexto("Carrito vaciado con éxito");
+      setModalMensajeTipo("exito");
+      setModalMensajeVisible(true);
+      setTimeout(() => setModalMensajeVisible(false), 3000);
+    } catch (error) {
+      console.error("Error al vaciar el carrito:", error);
+      setModalMensajeTexto("Error al vaciar el carrito");
+      setModalMensajeTipo("error");
+      setModalMensajeVisible(true);
+      setTimeout(() => setModalMensajeVisible(false), 3000);
+    }
+  };
   const handleCloseModal = () => {
     setModalCompraExitosaVisible(false);
     route.push("/pedidos");
@@ -491,7 +515,7 @@ export default function CarritoCompras() {
                 ]}
               />
             </TouchableOpacity>
-            <Text style={styles.checkboxTexto}>Servientrega (Sur) +$3.50</Text>
+            <Text style={styles.checkboxTexto}>Servientrega +$3.50</Text>
           </View>
 
           <View style={styles.checkboxFila}>
@@ -619,7 +643,7 @@ export default function CarritoCompras() {
         onPress={() => setProductos([])}
         style={[styles.botonPedidos, { backgroundColor: "red" }]}
       >
-        <Text style={[styles.textoBoton, { color: "#fff" }]}>
+        <Text style={[styles.textoBoton, { color: "#fff" }]} onPress={vaciarCarrito}>
           Vaciar Carrito
         </Text>
       </TouchableOpacity>
