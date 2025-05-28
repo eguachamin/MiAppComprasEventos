@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -38,10 +39,12 @@ export default function CarritoCompras() {
   );
   const [modalCompraExitosaVisible, setModalCompraExitosaVisible] =
     useState(false);
+  const [error, setError] = useState("");
   //Subir Documentos
   const [comprobante, setComprobante] = useState<string | null>(null);
   // Informacion del cliente
   const [nombre, setNombre] = useState("");
+  const [idCliente, setIdCliente]=useState("")
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
   //Informacion de direccion
@@ -69,10 +72,6 @@ export default function CarritoCompras() {
   //Estados en valores
   const [total, setTotal] = useState(0); // Total base sin envío
   const [subtotal, setSubtotal] = useState(0);
-  //Verificar
-  const [nombreTitular, setNombreTitular] = useState("");
-  const [apellidosTitular, setApellidosTitular] = useState("");
-
   // Calcula el costo de envío según selección
   const costoEnvioQuito = zonaSurServientre ? 3.5 : 0; // solo Sur Servientre +$3.50
   const costoEnvioProvincia = 6;
@@ -122,10 +121,10 @@ export default function CarritoCompras() {
 
   useEffect(() => {
     const nuevoSubtotal = productos.reduce((acc, item) => {
-    return acc + item.precio * item.cantidad;
-  }, 0);
-  setSubtotal(nuevoSubtotal);
-}, [productos]);
+      return acc + item.precio * item.cantidad;
+    }, 0);
+    setSubtotal(nuevoSubtotal);
+  }, [productos]);
 
   useEffect(() => {
     const costoEnvio =
@@ -134,14 +133,31 @@ export default function CarritoCompras() {
     setTotal(subtotal + costoEnvio);
   }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
 
-  //Funciones 
+  //Funciones
+  const handleCedulaChange = (text: string) => {
+  // Elimina cualquier caracter que no sea número
+  // Filtrar para que solo números ingresen
+    const soloNumeros = text.replace(/[^0-9]/g, "");
+
+    // Limitar a 10 caracteres
+    if (soloNumeros.length <= 10) {
+      setCedula(soloNumeros);
+    }
+
+    // Validar longitud exacta para mostrar error o no
+    if (soloNumeros.length > 0 && soloNumeros.length < 10) {
+      setError("La cédula debe tener 10 dígitos");
+    } else {
+      setError("");
+    }
+};
   const seleccionarImagen = async () => {
-      const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images', 
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
-      base64:false,
+      base64: false,
     });
 
     if (!resultado.canceled) {
@@ -211,6 +227,7 @@ export default function CarritoCompras() {
       setTimeout(() => setModalMensajeVisible(false), 3000);
     }
   };
+
   const vaciarCarrito = async () => {
     try {
       if (!carrito || carrito.productos.length === 0) return;
@@ -242,20 +259,33 @@ export default function CarritoCompras() {
   };
 
   const finalizarCompra = () => {
-    if (
-      !nombre ||
-      !telefono ||
-      !correo ||
-      !callePrincipal ||
-      !provincia ||
-      !ciudad ||
-      !formaPago
-    ) {
-      setModalMensajeTexto("Por favor, complete todos los campos obligatorios");
+    // Validar que el carrito esté disponible
+    if (!carrito || !carrito.productos?.length) {
+      setModalMensajeTexto("No hay productos en el carrito");
       setModalMensajeVisible(true);
       return;
     }
 
+    // Validar que las cantidades no excedan el stock
+    const hayStockSuficiente = carrito.productos.every(
+      (item) => item.cantidad <= item.producto.stock
+    );
+
+    if (!hayStockSuficiente) {
+      setModalMensajeTexto(
+        "Hay productos cuya cantidad excede el stock disponible"
+      );
+      setModalMensajeVisible(true);
+      return;
+    }
+    // Validaciones para envío a Provincia
+    if (envioProvincia === false && !zonaSurServientre && !zonaOtra) {
+      setModalMensajeTexto(
+        "Debes seleccionar una opción de envío antes de continuar."
+      );
+      setModalMensajeVisible(true);
+      return;
+    }
     if (envioProvincia) {
       if (!cedula) {
         setModalMensajeTexto(
@@ -271,10 +301,8 @@ export default function CarritoCompras() {
         setModalMensajeVisible(true);
         return;
       }
-      if (!nombreTitular || !apellidosTitular) {
-        setModalMensajeTexto(
-          "Debe ingresar nombre y apellidos del titular de la cuenta"
-        );
+      if (!nombre || !nombre) {
+        setModalMensajeTexto("Debe ingresar nombre del titular de la cuenta");
         setModalMensajeVisible(true);
         return;
       }
@@ -283,63 +311,108 @@ export default function CarritoCompras() {
         setModalMensajeVisible(true);
         return;
       }
-      // Validar que el carrito esté disponible
-      if (!carrito || !carrito.productos?.length) {
-        setModalMensajeTexto("No hay productos en el carrito");
+    }
+
+    // Validaciones para envío en Quito
+    if (!envioProvincia && zonaSurServientre) {
+      if (!cedula) {
+        setModalMensajeTexto("Debe ingresar su número de cédula");
         setModalMensajeVisible(true);
         return;
       }
-
-      // Validar que las cantidades no excedan el stock
-      const hayStockSuficiente = carrito.productos.every(
-        (item) => item.cantidad <= item.producto.stock
-      );
-
-      if (!hayStockSuficiente) {
+      if (!nombreRecibe) {
         setModalMensajeTexto(
-          "Hay productos cuya cantidad excede el stock disponible"
+          "Debe ingresar el nombre y apellidos de la persona que recibe"
         );
         setModalMensajeVisible(true);
         return;
       }
-
-      try {
-        // Construir los datos del pedido
-        const pedido = {
-          productos: carrito.productos.map((item) => ({
-            producto: item.producto._id,
-            cantidad: item.cantidad,
-          })),
-          direccion: {
-            callePrincipal,
-            calleSecundaria,
-            numeracion,
-            referencia,
-            provincia,
-            ciudad,
-          },
-          envioProvincia,
-          cedula: envioProvincia ? cedula : null,
-          nombreRecibe: envioProvincia ? nombreRecibe : null,
-          formaPago,
-          nombreTitular,
-          apellidosTitular,
-          comprobante, // si es transferencia, subirlo antes y enviar solo la URL
-          total: carrito.total,
-        };
-
-        // Mostrar modal de éxito
-        setModalCompraExitosaVisible(true);
-
-        // (Opcional) Vaciar el carrito después de compra exitosa
-        // await vaciarCarrito();
-      } catch (error) {
-        console.error("Error al finalizar compra:", error);
-        setModalMensajeTexto("Ocurrió un error al procesar la compra");
+      if (!nombre || !nombre) {
+        setModalMensajeTexto("Debe ingresar nombre  del titular de la cuenta");
         setModalMensajeVisible(true);
+        return;
+      }
+      if (
+        !callePrincipal ||
+        !calleSecundaria ||
+        !numeracion ||
+        !referencia ||
+        !provincia ||
+        !ciudad
+      ) {
+        setModalMensajeTexto("Debe completar la dirección completa");
+        setModalMensajeVisible(true);
+        return;
+      }
+      if (!comprobante) {
+        setModalMensajeTexto("Debe subir el comprobante de transferencia");
+        setModalMensajeVisible(true);
+        return;
       }
     }
+    
+    // No se valida nada adicional para "Encuentro en lugar público"
+    // Solo se requiere nombre, teléfono y correo, que se asume ya tienes como parte del perfil
+    const formaPagoFinal = envioProvincia === true || zonaSurServientre === true  ? "transferencia" : "efectivo";
+    const requiereDatosEnvio = envioProvincia ===true || zonaSurServientre === true
+    
+    const zonaEnvio = envioProvincia ===true ? "provincia" : "quito";
+
+    let metodoEnvio = "encuentro-publico";  // valor por defecto
+
+    if (envioProvincia === true) {
+      metodoEnvio = "servientrega";  // Provincia siempre servientrega
+    } else if (zonaSurServientre===true) {
+      metodoEnvio = "servientrega";  // Quito con Servientrega
+    } 
+    let costoEnvio = 0;
+    if (envioProvincia=== true) {
+      costoEnvio = 6;
+    } else if (zonaSurServientre=== true) {
+      costoEnvio = 3;
+    }
+    try {
+      const pedido = {
+        cliente:idCliente,
+        productos: carrito.productos.map((item) => ({
+          producto: item.producto._id,
+          cantidad: item.cantidad,
+          nombre:item.producto.nombreDisco,
+          precio:item.producto.precio,
+        })),
+        direccion:requiereDatosEnvio ?{
+                callePrincipal,
+                calleSecundaria,
+                numeracion,
+                referencia,
+                provincia,
+                ciudad,
+                cedula,
+                nombreRecibe
+              }
+            : null,
+        zonaEnvio,
+        metodoEnvio,
+        costoEnvio, // puede ser "Servientrega" o "Encuentro en lugar público"
+        formaPago:formaPagoFinal,
+        nombre,
+        telefono,
+        comprobantePago: comprobante || null,
+        total: carrito.total,
+      };
+
+      // Mostrar modal de éxito
+      setModalCompraExitosaVisible(true);
+
+      // (Opcional) Vaciar el carrito después de compra exitosa
+      // await vaciarCarrito();
+    } catch (error) {
+      console.error("Error al finalizar compra:", error);
+      setModalMensajeTexto("Ocurrió un error al procesar la compra");
+      setModalMensajeVisible(true);
+    }
   };
+
   return (
     <ScrollView
       style={styles.contenedor}
@@ -384,34 +457,6 @@ export default function CarritoCompras() {
         />
       ))}
 
-      <Text style={styles.titulo}>Dirección de Entrega</Text>
-
-      {[
-        {
-          label: "Calle Principal",
-          value: callePrincipal,
-          setter: setCallePrincipal,
-        },
-        {
-          label: "Calle Secundaria",
-          value: calleSecundaria,
-          setter: setCalleSecundaria,
-        },
-        { label: "Numeración", value: numeracion, setter: setNumeracion },
-        { label: "Referencia", value: referencia, setter: setReferencia },
-        { label: "Provincia", value: provincia, setter: setProvincia },
-        { label: "Ciudad", value: ciudad, setter: setCiudad },
-      ].map(({ label, value, setter }) => (
-        <TextInput
-          key={label}
-          style={styles.input}
-          placeholder={label}
-          placeholderTextColor="#aaa"
-          value={value}
-          onChangeText={setter}
-        />
-      ))}
-
       {envioProvincia && (
         <>
           <TextInput
@@ -419,9 +464,10 @@ export default function CarritoCompras() {
             placeholder="Número de Cédula"
             placeholderTextColor="#aaa"
             value={cedula}
-            onChangeText={setCedula}
+            onChangeText={handleCedulaChange}
             keyboardType="numeric"
           />
+          {!!error && <Text style={styles.errorText}>{error}</Text>}
           <TextInput
             style={styles.input}
             placeholder="Nombre y Apellidos de la persona que recibe"
@@ -430,6 +476,81 @@ export default function CarritoCompras() {
             onChangeText={setNombreRecibe}
             keyboardType="default"
           />
+          <Text style={styles.titulo}>Dirección de Entrega</Text>
+
+          {[
+            {
+              label: "Calle Principal",
+              value: callePrincipal,
+              setter: setCallePrincipal,
+            },
+            {
+              label: "Calle Secundaria",
+              value: calleSecundaria,
+              setter: setCalleSecundaria,
+            },
+            { label: "Numeración", value: numeracion, setter: setNumeracion },
+            { label: "Referencia", value: referencia, setter: setReferencia },
+            { label: "Provincia", value: provincia, setter: setProvincia },
+            { label: "Ciudad", value: ciudad, setter: setCiudad },
+          ].map(({ label, value, setter }) => (
+            <TextInput
+              key={label}
+              style={styles.input}
+              placeholder={label}
+              placeholderTextColor="#aaa"
+              value={value}
+              onChangeText={setter}
+            />
+          ))}
+        </>
+      )}
+
+      {zonaSurServientre && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Número de Cédula"
+            placeholderTextColor="#aaa"
+            value={cedula}
+            onChangeText={handleCedulaChange}
+            keyboardType="numeric"
+          />
+          {!!error && <Text style={styles.errorText}>{error}</Text>}
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre y Apellidos de la persona que recibe"
+            placeholderTextColor="#aaa"
+            value={nombreRecibe}
+            onChangeText={setNombreRecibe}
+            keyboardType="default"
+          />
+          <Text style={styles.titulo}>Dirección de Entrega</Text>
+          {[
+            {
+              label: "Calle Principal",
+              value: callePrincipal,
+              setter: setCallePrincipal,
+            },
+            {
+              label: "Calle Secundaria",
+              value: calleSecundaria,
+              setter: setCalleSecundaria,
+            },
+            { label: "Numeración", value: numeracion, setter: setNumeracion },
+            { label: "Referencia", value: referencia, setter: setReferencia },
+            { label: "Provincia", value: provincia, setter: setProvincia },
+            { label: "Ciudad", value: ciudad, setter: setCiudad },
+          ].map(({ label, value, setter }) => (
+            <TextInput
+              key={label}
+              style={styles.input}
+              placeholder={label}
+              placeholderTextColor="#aaa"
+              value={value}
+              onChangeText={setter}
+            />
+          ))}{" "}
         </>
       )}
 
@@ -542,62 +663,36 @@ export default function CarritoCompras() {
           {zonaSurServientre && (
             <View style={styles.comprobanteContainer}>
               <Text style={styles.label}>Subir Comprobante de Pago</Text>
-              <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
+              <TouchableOpacity
+                style={styles.botonSubir}
+                onPress={seleccionarImagen}
+              >
                 <Text style={styles.textoBoton}>Seleccionar archivo</Text>
               </TouchableOpacity>
+              {comprobante && (
+                <Image
+                  source={{ uri: comprobante }}
+                  style={{
+                    width: 150,
+                    height: 150,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                  resizeMode="contain"
+                />
+              )}
             </View>
           )}
 
           {zonaOtra && (
             <>
-              <Text style={styles.titulo}>Forma de Pago</Text>
-
-              <View style={styles.checkboxFila}>
-                <TouchableOpacity
-                  style={styles.checkbox}
-                  onPress={() =>
-                    setFormaPago(formaPago === "efectivo" ? "" : "efectivo")
-                  }
-                >
-                  <View
-                    style={[
-                      styles.cuadroCheck,
-                      formaPago === "efectivo" &&
-                        styles.cuadroCheckSeleccionado,
-                    ]}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.checkboxTexto}>Efectivo</Text>
+              <View style={styles.mensajeCoordinacionContainer}>
+                <Text style={styles.mensajeCoordinacion}>
+                  Al finalizar tu compra, te ayudaremos a coordinar
+                  personalmente el día, la hora y el lugar para encontrarnos en
+                  un espacio público seguro y conveniente para ambos.
+                </Text>
               </View>
-
-              <View style={styles.checkboxFila}>
-                <TouchableOpacity
-                  style={styles.checkbox}
-                  onPress={() =>
-                    setFormaPago(
-                      formaPago === "transferencia" ? "" : "transferencia"
-                    )
-                  }
-                >
-                  <View
-                    style={[
-                      styles.cuadroCheck,
-                      formaPago === "transferencia" &&
-                        styles.cuadroCheckSeleccionado,
-                    ]}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.checkboxTexto}>Transferencia</Text>
-              </View>
-
-              {formaPago === "transferencia" && (
-                <View style={styles.comprobanteContainer}>
-                  <Text style={styles.label}>Subir Comprobante</Text>
-                  <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
-                    <Text style={styles.textoBoton}>Seleccionar archivo</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
             </>
           )}
         </View>
@@ -628,9 +723,24 @@ export default function CarritoCompras() {
       {envioProvincia && (
         <View style={styles.comprobanteContainer}>
           <Text style={styles.label}>Subir Comprobante de Pago</Text>
-          <TouchableOpacity style={styles.botonSubir} onPress={seleccionarImagen}>
+          <TouchableOpacity
+            style={styles.botonSubir}
+            onPress={seleccionarImagen}
+          >
             <Text style={styles.textoBoton}>Seleccionar archivo</Text>
           </TouchableOpacity>
+          {comprobante && (
+            <Image
+              source={{ uri: comprobante }}
+              style={{
+                width: 150,
+                height: 150,
+                borderRadius: 10,
+                marginTop: 10,
+              }}
+              resizeMode="contain"
+            />
+          )}
         </View>
       )}
 
@@ -643,7 +753,10 @@ export default function CarritoCompras() {
         onPress={() => setProductos([])}
         style={[styles.botonPedidos, { backgroundColor: "red" }]}
       >
-        <Text style={[styles.textoBoton, { color: "#fff" }]} onPress={vaciarCarrito}>
+        <Text
+          style={[styles.textoBoton, { color: "#fff" }]}
+          onPress={vaciarCarrito}
+        >
           Vaciar Carrito
         </Text>
       </TouchableOpacity>
@@ -672,6 +785,10 @@ export default function CarritoCompras() {
 }
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: "red",
+    marginTop: 4,
+  },
   contenedor: {
     flex: 1,
     backgroundColor: "#000",
@@ -788,22 +905,40 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalContainer: {
-  marginTop: 20,
-  padding: 15,
-  backgroundColor: "#1a1a1a", // fondo negro elegante
-  borderRadius: 10,
-  alignItems: "center",
-  justifyContent: "center",
-  borderWidth: 1,
-  borderColor: "#FFD700", // dorado brillante
-},
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#1a1a1a", // fondo negro elegante
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#FFD700", // dorado brillante
+  },
 
-seccionInterna: {
-  paddingLeft: 20,
-  marginTop: 10,
-  marginBottom: 10,
-  borderLeftWidth: 2,
-  borderColor: "#FFD700", // dorado como marcador
-},
+  seccionInterna: {
+    paddingLeft: 20,
+    marginTop: 10,
+    marginBottom: 10,
+    borderLeftWidth: 2,
+    borderColor: "#FFD700", // dorado como marcador
+  },
+  mensajeCoordinacionContainer: {
+    backgroundColor: "#1a1a1a", // fondo oscuro elegante como los inputs
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#FFD700", // borde dorado
+    marginBottom: 20,
+  },
+
+  mensajeCoordinacion: {
+    color: "#FFD700", // texto dorado
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 22,
+    fontWeight: "500",
+  },
+  inputError: {
+    borderColor: "red",
+  },
 });
-
