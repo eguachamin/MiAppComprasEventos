@@ -1,5 +1,7 @@
 // utils/validators.ts
-import { z } from 'zod';
+import { z } from 'zod'
+import { verificarCedula, verificarRuc } from 'udv-ec';
+
 
 export const registroSchema = z.object({
   nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -16,5 +18,21 @@ export const registroSchema = z.object({
   message: 'Las contraseñas no coinciden',
   path: ['confirmarPassword'],
 });
+
+
+// Validar que sea cédula o RUC válido
+export const validateCedulaOrRUC = (value: string) => {
+  if (!value || value.trim() === '') {
+    return 'El campo es obligatorio';
+  }
+
+  const cleaned = value.trim();
+
+  if (verificarCedula(cleaned) || verificarRuc(cleaned)) {
+    return true;
+  }
+
+  return 'Debe ser una cédula o RUC válido';
+};
 
 export type FormData = z.infer<typeof registroSchema>;

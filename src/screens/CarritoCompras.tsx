@@ -20,6 +20,7 @@ import {
   actualizarCantidadProducto,
   eliminarProductoDelCarrito,
 } from "@/services/carritoService";
+import { validateCedulaOrRUC } from '../utils/validators'
 
 type ProductoCarrito = {
   id: string;
@@ -89,6 +90,7 @@ export default function CarritoCompras() {
         setNombre(datos.nombre);
         setTelefono(datos.telefono);
         setCorreo(datos.email);
+        
       } catch (error) {
         console.error("Error al cargar datos del cliente", error);
       }
@@ -134,23 +136,20 @@ export default function CarritoCompras() {
   }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
 
   //Funciones
-  const handleCedulaChange = (text: string) => {
-  // Elimina cualquier caracter que no sea número
-  // Filtrar para que solo números ingresen
-    const soloNumeros = text.replace(/[^0-9]/g, "");
+const handleCedulaChange = (text: string) => {
+  const soloNumeros = text.replace(/[^0-9]/g, "");
 
-    // Limitar a 10 caracteres
-    if (soloNumeros.length <= 10) {
-      setCedula(soloNumeros);
-    }
-
-    // Validar longitud exacta para mostrar error o no
-    if (soloNumeros.length > 0 && soloNumeros.length < 10) {
-      setError("La cédula debe tener 10 dígitos");
+  if (soloNumeros.length <= 13) { // máximo para RUC
+    setCedula(soloNumeros);
+    const result = validateCedulaOrRUC(soloNumeros);
+    if (result !== true) {
+      setError(result);
     } else {
       setError("");
     }
+  }
 };
+
   const seleccionarImagen = async () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
@@ -259,6 +258,7 @@ export default function CarritoCompras() {
   };
 
   const finalizarCompra = () => {
+    const cedulaValida = validateCedulaOrRUC(cedula);
     // Validar que el carrito esté disponible
     if (!carrito || !carrito.productos?.length) {
       setModalMensajeTexto("No hay productos en el carrito");
@@ -294,6 +294,11 @@ export default function CarritoCompras() {
         setModalMensajeVisible(true);
         return;
       }
+      if (!cedula || cedulaValida !== true) {
+        setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
+        setModalMensajeVisible(true);
+        return;
+      }
       if (!nombreRecibe) {
         setModalMensajeTexto(
           "Debe ingresar el nombre y apellidos de la persona que recibe"
@@ -317,6 +322,11 @@ export default function CarritoCompras() {
     if (!envioProvincia && zonaSurServientre) {
       if (!cedula) {
         setModalMensajeTexto("Debe ingresar su número de cédula");
+        setModalMensajeVisible(true);
+        return;
+      }
+      if (!cedula || cedulaValida !== true) {
+        setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
         setModalMensajeVisible(true);
         return;
       }
