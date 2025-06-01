@@ -12,7 +12,7 @@ export default function HomeScreen() {
     { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
     { label: 'Mis Compras', iconName: 'shopping-bag', route: '/carrito' },
     { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario' },
-    { label: 'Sobre el DJ', iconName: 'info', route: '/vinilo' },
+    { label: 'Sobre el DJ', iconName: 'info', route: '/eventos' },
   ];
 
   return (

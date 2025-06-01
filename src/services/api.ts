@@ -37,4 +37,15 @@ api.interceptors.response.use(
   }
 );
 
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 404) {
+      console.warn('Producto ya eliminado:', error.response.data);
+      return Promise.resolve(); // Ignora el error 404
+    }
+    throw error;
+  }
+);
+
 export default api;

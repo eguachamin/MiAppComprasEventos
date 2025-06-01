@@ -1,105 +1,72 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+// screens/PedidosScreen.tsx
 
-type ProductoPedido = {
-  id: string;
-  nombre: string;
-  cantidad: number;
-  precio: number;
-};
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { listarHistorialCompras } from "@/services/carritoService";
 
-type PedidoDetalle = {
-  id: string;
-  fecha: string;
-  estado: 'En proceso' | 'Enviado' | 'Entregado';
-  cliente: {
-    nombre: string;
-    telefono: string;
-    correo: string;
-    direccion: string;
-  };
-  productos: ProductoPedido[];
-  envio: number; // costo de envío
-};
+export default function PedidosScreen() {
+  
+  const [pedidos, setPedidos] = useState<any[]>([]);
+  const router = useRouter();
 
-const pedidoEjemplo: PedidoDetalle = {
-  id: '001',
-  fecha: '2025-05-15',
-  estado: 'En proceso',
-  cliente: {
-    nombre: 'Juan Pérez',
-    telefono: '0991234567',
-    correo: 'juanperez@example.com',
-    direccion: 'Av. Siempre Viva 123',
-  },
-  productos: [
-    { id: 'p1', nombre: 'Disco Vinilo A', cantidad: 1, precio: 20.0 },
-    { id: 'p2', nombre: 'Disco Vinilo B', cantidad: 2, precio: 15.0 },
-  ],
-  envio: 4.0,
-};
+  useEffect(() => {
+    const cargarPedidos = async () => {
+      try {
+        const data = await listarHistorialCompras(); // Esta función ya la tienes en carritoService
+        setPedidos(data);
+      } catch (error) {
+        console.error("Error al cargar pedidos", error);
+      }
+    };
 
-export default function MisPedidos() {
-  const route = useRouter();
-  const subtotal = pedidoEjemplo.productos.reduce(
-    (sum, item) => sum + item.cantidad * item.precio,
-    0
-  );
-  const total = subtotal + pedidoEjemplo.envio;
+    cargarPedidos();
+  }, []);
 
   return (
     <ScrollView style={styles.contenedor}>
-      <Text style={styles.titulo}>Detalle Pedido #{pedidoEjemplo.id}</Text>
+      <Text style={styles.titulo}>Mis Pedidos</Text>
 
-      <View style={styles.seccion}>
-        <Text style={styles.subtitulo}>Información del Pedido</Text>
-        <Text>Fecha: {pedidoEjemplo.fecha}</Text>
-        <Text>
-          Estado:{' '}
-          <Text
-            style={[
-              styles.estado,
-              pedidoEjemplo.estado === 'Entregado' && styles.estadoEntregado,
-              pedidoEjemplo.estado === 'Enviado' && styles.estadoEnviado,
-              pedidoEjemplo.estado === 'En proceso' && styles.estadoProceso,
-            ]}
-          >
-            {pedidoEjemplo.estado}
-          </Text>
+      {pedidos.length === 0 && (
+        <Text style={{ color: "#fff", textAlign: "center" }}>
+          No tienes compras realizadas aún.
         </Text>
-      </View>
+      )}
 
-      <View style={styles.seccion}>
-        <Text style={styles.subtitulo}>Datos del Cliente</Text>
-        <Text>Nombre: {pedidoEjemplo.cliente.nombre}</Text>
-        <Text>Teléfono: {pedidoEjemplo.cliente.telefono}</Text>
-        <Text>Correo: {pedidoEjemplo.cliente.correo}</Text>
-        <Text>Dirección: {pedidoEjemplo.cliente.direccion}</Text>
-      </View>
-
-      <View style={styles.seccion}>
-        <Text style={styles.subtitulo}>Productos</Text>
-        {pedidoEjemplo.productos.map((prod) => (
-          <View key={prod.id} style={styles.filaProducto}>
-            <Text style={styles.nombreProducto}>{prod.nombre}</Text>
-            <Text>Cantidad: {prod.cantidad}</Text>
-            <Text>Precio: ${prod.precio.toFixed(2)}</Text>
-            <Text>Subtotal: ${(prod.cantidad * prod.precio).toFixed(2)}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.seccion}>
-        <Text style={styles.subtitulo}>Resumen de Pago</Text>
-        <Text>Subtotal: ${subtotal.toFixed(2)}</Text>
-        <Text>Costo de envío: ${pedidoEjemplo.envio.toFixed(2)}</Text>
-        <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
-      </View>
-
-      <TouchableOpacity onPress={() => route.push('/vinilo')} style={styles.boton}>
-        <Text style={styles.textoBoton}>Regresar a Productos</Text>
-      </TouchableOpacity>
+      {pedidos.map((pedido, index) => (
+        <TouchableOpacity
+          key={`pedido-${pedido._id || index}`}
+          style={styles.filaTabla}
+          onPress={() =>
+            router.push({ pathname: "/detalle-pedido", params: { id: pedido._id } })
+          }
+        >
+          <Text style={[styles.celda, styles.celdaNombre]}>
+            {pedido.estado}
+          </Text>
+          <Text style={styles.celda}>
+            {new Date(pedido.fechaCompra).toLocaleDateString()}
+          </Text>
+          <Text style={styles.celda}>
+            ${pedido.total.toFixed(2)}
+          </Text>
+          <Text style={styles.celda}>
+            Ver Detalle →
+          </Text>
+        </TouchableOpacity>
+      ))}
+      <TouchableOpacity
+                style={styles.botonVolver}
+                onPress={() => router.replace('/home')}
+              >
+                <Text style={styles.textoBoton}>← Volver</Text>
+              </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -107,66 +74,45 @@ export default function MisPedidos() {
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     padding: 20,
   },
   titulo: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFD700',
+    fontSize: 24,
+    color: "#FFD700",
+    fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "center",
   },
-  seccion: {
-    marginBottom: 20,
-    backgroundColor: '#111',
-    borderRadius: 10,
-    padding: 15,
+  filaTabla: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+    paddingVertical: 12,
   },
-  subtitulo: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 10,
+  celda: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
   },
-  filaProducto: {
-    marginBottom: 12,
-    backgroundColor: '#222',
-    padding: 10,
+  celdaNombre: {
+    flex: 2,
+    textAlign: "left",
+    color: "#fff",
+  },
+  botonVolver: {
+    backgroundColor: "#FFD700",
+    paddingVertical: 12,
     borderRadius: 8,
-  },
-  nombreProducto: {
-    color: '#fff',
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  estado: {
-    fontWeight: 'bold',
-  },
-  estadoEntregado: {
-    color: '#4CAF50',
-  },
-  estadoEnviado: {
-    color: '#2196F3',
-  },
-  estadoProceso: {
-    color: '#FFD700',
-  },
-  total: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginTop: 10,
-  },
-  boton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 14,
-    marginTop: 10,
+    marginTop: 20,
+    alignItems: "center",
   },
   textoBoton: {
-    color: '#000',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
     fontSize: 16,
+    color: "#000",
   },
 });

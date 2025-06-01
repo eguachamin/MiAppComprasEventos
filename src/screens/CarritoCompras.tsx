@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,8 +20,10 @@ import {
   Carrito,
   actualizarCantidadProducto,
   eliminarProductoDelCarrito,
+  finalizarCompraEnBackend,
 } from "@/services/carritoService";
 import { validateCedulaOrRUC } from '../utils/validators'
+
 
 type ProductoCarrito = {
   id: string;
@@ -28,6 +31,7 @@ type ProductoCarrito = {
   cantidad: number;
   precio: number;
 };
+
 
 export default function CarritoCompras() {
   //Para cambiar de página
@@ -135,7 +139,7 @@ export default function CarritoCompras() {
     setTotal(subtotal + costoEnvio);
   }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
 
-  //Funciones
+  
 const handleCedulaChange = (text: string) => {
   const soloNumeros = text.replace(/[^0-9]/g, "");
 
@@ -229,35 +233,61 @@ const handleCedulaChange = (text: string) => {
 
   const vaciarCarrito = async () => {
     try {
-      if (!carrito || carrito.productos.length === 0) return;
+    if (!carrito || carrito.productos.length === 0) return;
 
-      // Elimina uno a uno
-      for (const item of carrito.productos) {
+    // Elimina uno a uno
+    for (const item of carrito.productos) {
+      try {
         await eliminarProductoDelCarrito(item.producto._id);
+      } catch (error) {
+        console.warn(`Error al eliminar producto ${item.producto._id}:`, error);
       }
-
-      // Limpia estados del frontend
-      setCarrito({ ...carrito, productos: [], total: 0 });
-      setProductos([]);
-
-      setModalMensajeTexto("Carrito vaciado con éxito");
-      setModalMensajeTipo("exito");
-      setModalMensajeVisible(true);
-      setTimeout(() => setModalMensajeVisible(false), 3000);
-    } catch (error) {
-      console.error("Error al vaciar el carrito:", error);
-      setModalMensajeTexto("Error al vaciar el carrito");
-      setModalMensajeTipo("error");
-      setModalMensajeVisible(true);
-      setTimeout(() => setModalMensajeVisible(false), 3000);
     }
+
+    // Recargar carrito desde el backend
+    const updatedCarrito = await obtenerCarrito();
+    setCarrito(updatedCarrito);
+
+    // Actualizar productos simples
+    const productosSimples = updatedCarrito.productos.map((p) => ({
+      id: p.producto._id,
+      nombre: p.producto.nombreDisco,
+      cantidad: p.cantidad,
+      precio: p.producto.precio,
+    }));
+    setProductos(productosSimples);
+
+    // Mostrar mensaje de éxito
+    setModalMensajeTexto("Carrito vaciado con éxito");
+    setModalMensajeTipo("exito");
+    setModalMensajeVisible(true);
+    setTimeout(() => setModalMensajeVisible(false), 3000);
+  } catch (error) {
+    console.error("Error al vaciar el carrito:", error);
+    setModalMensajeTexto("Error al vaciar el carrito");
+    setModalMensajeTipo("error");
+    setModalMensajeVisible(true);
+    setTimeout(() => setModalMensajeVisible(false), 3000);
+  }
   };
   const handleCloseModal = () => {
     setModalCompraExitosaVisible(false);
     route.push("/pedidos");
   };
+  const dataURLtoFile = (dataurl: string, filename: string) => {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
 
-  const finalizarCompra = () => {
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  };
+  const finalizarCompra = async () => {
     const cedulaValida = validateCedulaOrRUC(cedula);
     // Validar que el carrito esté disponible
     if (!carrito || !carrito.productos?.length) {
@@ -381,7 +411,6 @@ const handleCedulaChange = (text: string) => {
     } else if (zonaSurServientre=== true) {
       costoEnvio = 3;
     }
-    try {
       const pedido = {
         cliente:idCliente,
         productos: carrito.productos.map((item) => ({
@@ -410,12 +439,51 @@ const handleCedulaChange = (text: string) => {
         comprobantePago: comprobante || null,
         total: carrito.total,
       };
+      const formData = new FormData();
 
-      // Mostrar modal de éxito
-      setModalCompraExitosaVisible(true);
+        formData.append("zonaEnvio", pedido.zonaEnvio);
+        formData.append("metodoEnvio", pedido.metodoEnvio);
+        formData.append("formaPago", pedido.formaPago);
 
-      // (Opcional) Vaciar el carrito después de compra exitosa
-      // await vaciarCarrito();
+        if (pedido.direccion) {
+          formData.append("direccionEnvio", JSON.stringify(pedido.direccion));
+        }
+
+        if (pedido.comprobantePago) {
+          let file;
+          if (pedido.comprobantePago.startsWith("data:image")) {
+            // Si es base64, convierte a File
+            file = dataURLtoFile(pedido.comprobantePago, "comprobante.jpg");
+          } else {
+            const uriParts = pedido.comprobantePago.split(".");
+            const fileType = uriParts[uriParts.length - 1];
+
+            file = {
+              uri: pedido.comprobantePago,
+              name: `comprobante.${fileType}`,
+              type: `image/${fileType}`,
+            };
+          }
+
+          formData.append("comprobantePago", file as any);
+        }
+    try {
+    const resultado = await finalizarCompraEnBackend(formData);
+    console.log("Compra exitosa:", resultado);
+
+    setModalCompraExitosaVisible(true);
+    // Vaciar carrito local (no hace falta llamar al backend otra vez)
+      setCarrito({ ...carrito, productos: [], total: 0 });
+      setProductos([]);
+      setCedula("");
+      setNombreRecibe("");
+      setComprobante(null);
+      setZonaSurServientre(false);
+      setEnvioQuito(false);
+      setEnvioProvincia(false);
+      setZonaOtra(false);
+      setFormaPago("");
+    
     } catch (error) {
       console.error("Error al finalizar compra:", error);
       setModalMensajeTexto("Ocurrió un error al procesar la compra");

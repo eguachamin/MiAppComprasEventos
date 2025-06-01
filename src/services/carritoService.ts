@@ -99,3 +99,48 @@ export const eliminarProductoDelCarrito = async (productoId: string) => {
 
   return response.data;
 };
+export const finalizarCompraEnBackend = async (formData: FormData) => {
+  const { token } = useAuthStore.getState();
+  if (!token) throw new Error("No autenticado");
+
+  try {
+    const response = await api.post("/compras/finalizar", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    const mensaje =
+      error.response?.data?.msg ||
+      "Error al procesar la compra. Por favor, inténtalo nuevamente.";
+    console.error("Error al finalizar compra:", error);
+    throw new Error(mensaje);
+  }
+};
+export const listarHistorialCompras = async (): Promise<any[]> => {
+  const { token } = useAuthStore.getState();
+  if (!token) throw new Error("No autenticado");
+
+  const response = await api.get("/compras/historial", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+export const detalleHistorialCompras = async (id: string): Promise<any> => {
+  const { token } = useAuthStore.getState();
+  if (!token) throw new Error("No autenticado");
+
+  const response = await api.get(`/compras/detallehistorial/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
