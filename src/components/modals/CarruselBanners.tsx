@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { View, Image } from "react-native";
-
-// Asegúrate de tener esta versión instalada
-import SkeletonContent from "react-native-skeleton-content";
+import React, { useState, useEffect } from "react";
+import { View, Image, Text, TouchableOpacity, Linking, StyleSheet } from "react-native";
 
 interface Banner {
-  id: string;
-  uri: string;
+  _id: string;
+  nombre: string;
+  descripcion: string;
+  imagenUrl: string;
+  linkCotizar?: string;
 }
 
 interface Props {
@@ -14,54 +14,68 @@ interface Props {
   isLoading?: boolean;
 }
 
-export default function CarruselBanners({ banners, isLoading = true }: Props) {
+export default function CarruselBanners({ banners, isLoading }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (!isLoading && banners.length > 1) {
+      const interval = setInterval(() => {
+        setActiveIndex((prev) => (prev + 1) % banners.length);
+      }, 4000);
 
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % banners.length);
-    }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [banners.length, isLoading]);
 
-    return () => clearInterval(interval);
-  }, [banners.length]);
+  // Validación adicional
+  if (isLoading || banners.length === 0) {
+    return (
+      <View style={styles.skeleton}>
+        <Text style={{ color: "#fff" }}>Cargando banner...</Text>
+      </View>
+    );
+  }
+
+  const activeBanner = banners[activeIndex];
 
   return (
-    <>
-      {/* Cargando */}
-      {isLoading && (
-        <View
-          style={{
-            width: "100%",
-            height: 150,
-            backgroundColor: "#333",
-            borderRadius: 12,
-            marginHorizontal: 20,
-            marginBottom: 20,
-          }}
-        />
-      )}
-
-      {/* Contenido real */}
-      {!isLoading && (
-        <View
-          style={{
-            width: "100%",
-            height: 150,
-            borderRadius: 12,
-            overflow: "hidden",
-            marginHorizontal: 20,
-            marginBottom: 20,
-          }}
-        >
-          <Image
-            source={{ uri: banners[activeIndex].uri }}
-            style={{ width: "100%", height: 150 }}
-            resizeMode="cover"
-          />
-        </View>
-      )}
-    </>
+    <TouchableOpacity
+      style={{
+        marginHorizontal: 20,
+        marginBottom: 20,
+      }}
+      onPress={() => {
+        if (activeBanner.linkCotizar) {
+          Linking.openURL(activeBanner.linkCotizar);
+        }
+      }}
+    >
+      <Image
+        source={{ uri: activeBanner.imagenUrl }}
+        style={{
+          width: "100%",
+          height: 150,
+          borderRadius: 12,
+          marginBottom: 10,
+        }}
+        resizeMode="cover"
+      />
+      <Text style={{ color: "#FFD700", textAlign: "center", marginBottom: 10 }}>
+        {activeBanner.nombre}
+      </Text>
+    </TouchableOpacity>
   );
 }
+const styles = StyleSheet.create({
+  skeleton: {
+    width: "100%",
+    height: 150,
+    backgroundColor: "#333",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    
+  },
+});
