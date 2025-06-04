@@ -4,9 +4,8 @@ import { View, Image, Text, TouchableOpacity, Linking, StyleSheet } from "react-
 interface Banner {
   _id: string;
   nombre: string;
-  descripcion: string;
   imagenUrl: string;
-  linkCotizar?: string;
+  fecha: string; // Cambiado a string minúscula (recomendado)
 }
 
 interface Props {
@@ -21,7 +20,7 @@ export default function CarruselBanners({ banners, isLoading }: Props) {
     if (!isLoading && banners.length > 1) {
       const interval = setInterval(() => {
         setActiveIndex((prev) => (prev + 1) % banners.length);
-      }, 4000);
+      }, 5000);
 
       return () => clearInterval(interval);
     }
@@ -40,33 +39,61 @@ export default function CarruselBanners({ banners, isLoading }: Props) {
 
   return (
     <TouchableOpacity
-      style={{
-        marginHorizontal: 20,
-        marginBottom: 20,
-      }}
+      style={styles.container}
       onPress={() => {
-        if (activeBanner.linkCotizar) {
-          Linking.openURL(activeBanner.linkCotizar);
-        }
+        // Puedes dejar esto vacío o abrir un link si tienes linkCotizar
+        // Si quieres agregarlo después, está bien así
       }}
     >
       <Image
         source={{ uri: activeBanner.imagenUrl }}
-        style={{
-          width: "100%",
-          height: 150,
-          borderRadius: 12,
-          marginBottom: 10,
-        }}
+        style={styles.image}
         resizeMode="cover"
+        onError={(e) => console.log("Error cargando imagen:", e.nativeEvent.error)}
       />
-      <Text style={{ color: "#FFD700", textAlign: "center", marginBottom: 10 }}>
-        {activeBanner.nombre}
-      </Text>
+
+      <Text style={styles.titulo}>{activeBanner.nombre}</Text>
+
+      {/* Muestra la fecha si existe */}
+      {activeBanner.fecha && (
+        <Text style={styles.fecha}>
+          Fecha: {new Date(activeBanner.fecha).toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
+
 const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: 400,
+    borderRadius: 12,
+    backgroundColor: "#222", // Fondo en caso de fallar la imagen
+  },
+  titulo: {
+    color: "#FFD700",
+    textAlign: "center",
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  fecha: {
+    color: "#ccc",
+    textAlign: "center",
+    marginTop: 4,
+    fontSize: 14,
+  },
   skeleton: {
     width: "100%",
     height: 150,
@@ -76,6 +103,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 20,
     marginBottom: 20,
-    
   },
 });

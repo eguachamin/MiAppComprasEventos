@@ -10,9 +10,9 @@ export default function HomeScreen() {
 
   const menuItems = [
     { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
-    { label: 'Mis Compras', iconName: 'shopping-bag', route: '/carrito' },
+    { label: 'Mis Pedidos', iconName: 'shopping-bag', route: '/pedidos' },
     { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario' },
-    { label: 'Sobre el DJ', iconName: 'info', route: '/eventos' },
+    { label: 'Info de Eventos', iconName: 'info', route: '/eventos' },
   ];
 
   return (

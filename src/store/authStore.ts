@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 interface AuthState {
+  [x: string]: any;
   token: string | null;
   user: any;
   isLoading: boolean;

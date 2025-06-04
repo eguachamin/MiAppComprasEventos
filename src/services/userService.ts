@@ -1,5 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage/lib/typescript/AsyncStorage";
 import api from "./api";
 import { useAuthStore } from "@/store/authStore";
+import * as Notifications from 'expo-notifications';
+import { Platform } from "react-native";
 
 export interface RegistroPayload {
   nombre: string;
@@ -204,4 +207,37 @@ function base64ToBlob(base64Data: string, contentType = "") {
   }
 
   return new Blob(byteArrays, { type: contentType });
+}
+export async function saveExpoPushToken() {
+  try {
+    const { token } = useAuthStore.getState();
+    if (!token) {
+      console.error("No autenticado");
+      return;
+    }
+
+     // Solo intentamos obtener el token en dispositivos móviles
+    if (Platform.OS !== 'web') {
+      const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log("🎯 Token generado:", expoPushToken); // ✅ Aquí lo ves
+      const response = await api.put(
+        "/cliente/actualizar-push-token",
+        { expoPushToken },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Token enviado al backend:", response.data);
+    } else {
+      console.log("Notificaciones push desactivadas en web");
+    }
+  } catch (error: any) {
+    console.error(
+      "Error al enviar el token:",
+      error.response?.data || error.message
+    );
+  }
 }

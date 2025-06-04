@@ -50,26 +50,59 @@ export default function InformacionEventosScreen() {
         </>
       )}
 
-      {/* Dos banners fijos (quemados) */}
+      {/* Un banners fijos (quemados) */}
       <View style={styles.infoContainer}>
-        <Text style={styles.subtitulo}>Promociones especiales:</Text>
+        <Text style={styles.subtitulo}></Text>
 
         <Image
           source={require("@/assets/images/Imagen_Publicitaria1.jpg")}
           style={styles.bannerEstatico}
         />
-        <Text style={styles.descripcion}>
-          ¡Este es un evento promocional quemado! Haz clic para saber más.
-        </Text>
+            </View>
+        {/* Sección de redes sociales */}
+<View style={styles.redesContainer}>
+  <TouchableOpacity
+    onPress={() =>
+      Linking.openURL("https://www.facebook.com/edwin.asqui.1") 
+    }
+  >
+    <View style={styles.redSocialItem}>
+      <Image
+        source={require("@/assets/images/facebook.png")} // ajusta la ruta según tu estructura
+        style={styles.iconoRed}
+      />
+      <Text style={styles.redSocialTexto}>Edwin Asqui - Facebook</Text>
+    </View>
+  </TouchableOpacity>
 
-        <Image
-          source={require("@/assets/images/Imagen_Publicitaria2.jpg")}
-          style={styles.bannerEstatico2}
-        />
-        <Text style={styles.descripcion}>
-          Este es otro evento especial. Pide información detallada al hacer clic.
-        </Text>
-      </View>
+  <TouchableOpacity
+    onPress={() =>
+      Linking.openURL("https://www.instagram.com/edwinasqui/") 
+    }
+  >
+    <View style={styles.redSocialItem}>
+      <Image
+        source={require("@/assets/images/instagram.png")}
+        style={styles.iconoRed}
+      />
+      <Text style={styles.redSocialTexto}>edwinasqui - Instagram</Text>
+    </View>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    onPress={() =>
+      Linking.openURL("https://twitter.com/EdwinAsqui") 
+    }
+  >
+    <View style={styles.redSocialItem}>
+      <Image
+        source={require("@/assets/images/twitter.png")}
+        style={styles.iconoRed}
+      />
+      <Text style={styles.redSocialTexto}>@EdwinAsqui - Twitter/X</Text>
+    </View>
+  </TouchableOpacity>
+</View>
     </ScrollView>
   );
 }
@@ -78,7 +111,7 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFD700", 
+    color: "#FFD700",
     textAlign: "center",
     marginVertical: 20,
     paddingHorizontal: 20,
@@ -123,10 +156,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
   },
-  bannerEstatico2: {
-    width: "90%",
-    height: 300,
-    borderRadius: 12,
+  redesContainer: {
+    marginHorizontal: 20,
+    marginBottom: 30,
+  },
+  redSocialItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#222",
+    padding: 10,
+    borderRadius: 10,
     marginBottom: 10,
+  },
+  redSocialTexto: {
+    marginLeft: 15,
+    color: "#FFD700",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  iconoRed: {
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
   },
 });

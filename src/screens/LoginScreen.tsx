@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
-import { loginUser, reenviarCorreoVerificacion } from '../services/userService';
+import { loginUser, reenviarCorreoVerificacion, saveExpoPushToken } from '../services/userService';
 import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
@@ -30,9 +30,13 @@ export default function LoginScreen() {
   const onSubmit = async (data: FormData) => {
     try {
       const res = await loginUser(data);
-      console.log('Respuesta login:', res); 
+      console.log('Respuesta login:', res);
+
       const { token, _id, ...userData } = res;
       await login(token, { id: _id, ...userData });
+      // ✅ Aquí guardamos el token de notificaciones push
+      await saveExpoPushToken();
+      
       router.replace('/home');
     } catch (error: any) {
       const msg = error?.response?.data?.msg || 'Error al iniciar sesión';
