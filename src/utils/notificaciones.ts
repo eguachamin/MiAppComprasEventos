@@ -1,4 +1,4 @@
-// utils/pushNotification.js
+// utils/notificaciones.js
 import * as Notifications from 'expo-notifications';
 
 export async function getExpoPushToken() {

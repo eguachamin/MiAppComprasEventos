@@ -104,7 +104,7 @@ export default function ComprarVinilos() {
 
       <TouchableOpacity onPress={() => router.replace("/carrito")}>
         <Feather name="shopping-cart" size={26} color="#FFD700" />
-        <br />
+        
       </TouchableOpacity>
       
       <TextInput

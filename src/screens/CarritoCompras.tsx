@@ -826,7 +826,7 @@ const handleCedulaChange = (text: string) => {
       <View style={styles.totalContainer}>
         <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
       </View>
-      <br />
+      
       <TouchableOpacity
         onPress={() => setProductos([])}
         style={[styles.botonPedidos, { backgroundColor: "red" }]}
