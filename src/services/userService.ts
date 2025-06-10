@@ -218,6 +218,7 @@ export async function saveExpoPushToken() {
 
      // Solo intentamos obtener el token en dispositivos móviles
     if (Platform.OS !== 'web') {
+      //Recordar que debo borrar el simulado
       const expoPushToken="ExponentPushToken[simuladoManualmente123]";
       //const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
       console.log("🎯 Token generado:", expoPushToken); // ✅ Aquí lo ves
@@ -227,6 +228,7 @@ export async function saveExpoPushToken() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -236,9 +238,12 @@ export async function saveExpoPushToken() {
       console.log("Notificaciones push desactivadas en web");
     }
   } catch (error: any) {
-    console.error(
-      "Error al enviar el token:",
-      error.response?.data || error.message
-    );
+    console.error("❌ Error al enviar el token:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+      url: error.config?.url,
+      method: error.config?.method,
+    });
   }
 }
