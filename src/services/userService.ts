@@ -184,7 +184,7 @@ export const actualizarCliente = async (
       console.error("Error.response.data:", error?.response?.data);
     console.error("Respuesta del servidor:", JSON.stringify(error?.response?.data, null, 2));
     throw new Error(
-       (error?.response?.data?.mensaje) ||
+      (error?.response?.data?.mensaje) ||
         error?.message ||
         "Error al actualizar perfil"
     );
@@ -218,7 +218,8 @@ export async function saveExpoPushToken() {
 
      // Solo intentamos obtener el token en dispositivos móviles
     if (Platform.OS !== 'web') {
-      const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
+      const expoPushToken="ExponentPushToken[simuladoManualmente123]";
+      //const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
       console.log("🎯 Token generado:", expoPushToken); // ✅ Aquí lo ves
       const response = await api.put(
         "/cliente/actualizar-push-token",
