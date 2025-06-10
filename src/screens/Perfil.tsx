@@ -89,7 +89,7 @@ const PerfilCliente = () => {
   const seleccionarImagen = async () => {
     console.log("Seleccionar imagen ejecutado");
     const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images', 
+      mediaTypes: 'images',
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,

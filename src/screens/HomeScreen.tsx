@@ -4,9 +4,11 @@ import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '@/store/authStore';
+import { useNotificacionStore } from '@/store/notificacionStore';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const cantidadNoLeidas = useNotificacionStore((state) => state.cantidadNoLeidas);
 
   const menuItems = [
     { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
@@ -23,9 +25,18 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>🎧 DJ Edwin</Text>
         <View style={{ flexDirection: 'row', gap: 15 }}>
-        <TouchableOpacity onPress={() => console.log('Notificaciones')}>
-          <Feather name="bell" size={26} color="#FFD700" />
+
+         {/* Botón de campana */}
+        <TouchableOpacity onPress={() => router.push('/notificaciones')}>
+            <Feather name="bell" size={26} color="#FFD700" />
+            {cantidadNoLeidas > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cantidadNoLeidas}</Text>
+              </View>
+            )}
+          
         </TouchableOpacity>
+        {/* Botón de logout */}
         <TouchableOpacity onPress={() => {
           useAuthStore.getState().logout();
           router.replace('/login');
@@ -99,5 +110,25 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  campanaContainer: {
+    position: 'relative',
+    padding: 10,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 22,
+    height: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
