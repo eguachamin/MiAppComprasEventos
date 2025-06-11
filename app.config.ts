@@ -10,9 +10,9 @@ const config: CustomExpoConfig = {
     slug: "miappcompraseventos",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "../assets/images/icon.png",
     splash: {
-        image: "./assets/images/splash-icon.png",
+        image: "../assets/images/splash-icon.png",
         resizeMode: "contain",
         backgroundColor: "#ffffff"
     },
@@ -31,7 +31,7 @@ const config: CustomExpoConfig = {
         }
     },
     web: {
-        favicon: "./assets/images/favicon.png"
+        favicon: "../assets/images/favicon.png"
     },
     extra: {
         eas: {
