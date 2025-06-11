@@ -219,8 +219,8 @@ export async function saveExpoPushToken() {
      // Solo intentamos obtener el token en dispositivos móviles
     if (Platform.OS !== 'web') {
       //Recordar que debo borrar el simulado
-      const expoPushToken="ExponentPushToken[simuladoManualmente123]";
-      //const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
+      //const expoPushToken="ExponentPushToken[simuladoManualmente123]";
+      const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
       console.log("🎯 Token generado:", expoPushToken); // ✅ Aquí lo ves
       const response = await api.put(
         "/cliente/actualizar-push-token",

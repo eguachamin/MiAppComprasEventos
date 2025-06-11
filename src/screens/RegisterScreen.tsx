@@ -1,5 +1,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -109,8 +111,14 @@ useEffect(() => {
   };
 
   return (
-    <>
-    <ScrollView contentContainerStyle={estilos.contenidoScroll} style={[estilos.contenedor, { zIndex: 0 }]}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={estilos.contenedor}
+    >
+      <ScrollView
+        contentContainerStyle={estilos.contenidoScroll}
+        keyboardShouldPersistTaps="handled"
+      >
       <Text style={estilos.titulo}>Registro</Text>
 
       {[
@@ -230,7 +238,7 @@ useEffect(() => {
     {showEmail_Existente_Modal && (
       <Email_Existente_Modal onClose={() => setShowEmail_Existente_Modal(false)} />
     )}
-  </>
+  </KeyboardAvoidingView>
   );
 }
 

@@ -24,15 +24,20 @@ const config: CustomExpoConfig = {
         supportsTablet: true
     },
     android: {
+        package: "com.evelyn97.miappcompraseventos",
         adaptiveIcon: {
-            foregroundImage: "./assets/images/adaptive-icon.png",
+            foregroundImage: "../assets/images/adaptive-icon.png",
             backgroundColor: "#FFFFFF"
         }
     },
     web: {
         favicon: "./assets/images/favicon.png"
     },
-    projectId: "14dcf9bb-c544-4c6a-81ac-da6982929b55", // Ahora sí es válido
+    extra: {
+        eas: {
+            projectId: "dc3c2932-9022-4cd7-83c6-469023f12004"
+        }
+    }
 };
 
 export default config;
