@@ -1,18 +1,19 @@
 // app.config.ts
 import type { ExpoConfig } from 'expo/config';
 
+
 type CustomExpoConfig = ExpoConfig & {
     projectId?: string;
 };
 
 const config: CustomExpoConfig = {
-    name: "miappcompraseventos",
+    name: "Vinilos Edwin DJ",
     slug: "miappcompraseventos",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "../assets/images/icon.png",
+    icon: "./src/assets/images/icon.png",
     splash: {
-        image: "../assets/images/splash-icon.png",
+        image: "./src/assets/images/splash-icon.png",
         resizeMode: "contain",
         backgroundColor: "#ffffff"
     },
@@ -26,12 +27,12 @@ const config: CustomExpoConfig = {
     android: {
         package: "com.evelyn97.miappcompraseventos",
         adaptiveIcon: {
-            foregroundImage: "../assets/images/adaptive-icon.png",
+            foregroundImage: "./src/assets/images/adaptive-icon.png",
             backgroundColor: "#FFFFFF"
         }
     },
     web: {
-        favicon: "../assets/images/favicon.png"
+        favicon: "./src/assets/images/favicon.png"
     },
     extra: {
         eas: {
