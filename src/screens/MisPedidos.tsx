@@ -60,7 +60,7 @@ export default function PedidosScreen() {
         <Text style={{ color: "#999", textAlign: "center" }}>
           {mostrarPendientes
             ? "No tienes pedidos pendientes."
-            : "No tienes compras realizadas aún."}
+            :""}
         </Text>
       )}
       {pedidosFiltrados.map((pedido, index) => (

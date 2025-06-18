@@ -496,6 +496,7 @@ const handleCedulaChange = (text: string) => {
       style={styles.contenedor}
       contentContainerStyle={{ paddingBottom: 40 }}
     >
+      <Text style={styles.titulo}>Mi Carrito</Text>
       <TouchableOpacity
         onPress={() => route.push("/pedidos")}
         style={styles.botonPedidos}
@@ -888,8 +889,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#FFD700",
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
     marginTop: 10,
+    textAlign: "center",
   },
   input: {
     backgroundColor: "#1a1a1a",
@@ -983,8 +985,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalContainer: {
-    marginTop: 20,
-    padding: 15,
+    marginBottom: 20,
+    padding: 10,
     backgroundColor: "#1a1a1a", // fondo negro elegante
     borderRadius: 10,
     alignItems: "center",

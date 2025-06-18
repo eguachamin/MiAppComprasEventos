@@ -11,9 +11,9 @@ const config: CustomExpoConfig = {
     slug: "miappcompraseventos",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./src/assets/images/icon.png",
+    icon: "./src/assets/images/imagenapk.png",
     splash: {
-        image: "./src/assets/images/splash-icon.png",
+        image: "./src/assets/images/imagenapk.png",
         resizeMode: "contain",
         backgroundColor: "#ffffff"
     },
@@ -27,7 +27,7 @@ const config: CustomExpoConfig = {
     android: {
         package: "com.evelyn97.miappcompraseventos",
         adaptiveIcon: {
-            foregroundImage: "./src/assets/images/adaptive-icon.png",
+            foregroundImage: "./src/assets/images/imagenapk.png",
             backgroundColor: "#FFFFFF"
         }
     },
