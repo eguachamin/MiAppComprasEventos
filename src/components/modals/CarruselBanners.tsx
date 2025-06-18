@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: "100%",
+    width: "105%",
     height: 400,
     borderRadius: 12,
     backgroundColor: "#222", // Fondo en caso de fallar la imagen

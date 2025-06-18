@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Switch,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { listarHistorialCompras } from "@/services/carritoService";
 
 export default function PedidosScreen() {
-  
+  const [mostrarPendientes, setMostrarPendientes] = useState(false);
   const [pedidos, setPedidos] = useState<any[]>([]);
   const router = useRouter();
 
@@ -28,18 +29,41 @@ export default function PedidosScreen() {
 
     cargarPedidos();
   }, []);
+  // Filtra los pedidos si "mostrarPendientes" es true
+  const pedidosFiltrados = mostrarPendientes
+    ? pedidos.filter((p) => p.estado === "pendiente")
+    : pedidos;
 
   return (
     <ScrollView style={styles.contenedor}>
       <Text style={styles.titulo}>Mis Pedidos</Text>
-
+      {/* Filtro de mostrar solo pendientes */}
+      <View style={styles.filtroContainer}>
+          <View style={styles.switchContainer}>
+          <Text style={styles.switchLabel}>
+            Mostrar pedidos en estado pendiente
+          </Text>
+          <Switch
+            value={mostrarPendientes}
+            onValueChange={setMostrarPendientes}
+            thumbColor={mostrarPendientes ? "#FFD700" : "#f4f3f4"}
+            trackColor={{ false: "#555", true: "#FFD700" }}
+          />
+        </View>
+      </View>
       {pedidos.length === 0 && (
         <Text style={{ color: "#fff", textAlign: "center" }}>
           No tienes compras realizadas aún.
         </Text>
       )}
-
-      {pedidos.map((pedido, index) => (
+      {pedidosFiltrados.length === 0 && (
+        <Text style={{ color: "#999", textAlign: "center" }}>
+          {mostrarPendientes
+            ? "No tienes pedidos pendientes."
+            : "No tienes compras realizadas aún."}
+        </Text>
+      )}
+      {pedidosFiltrados.map((pedido, index) => (
         <TouchableOpacity
           key={`pedido-${pedido._id || index}`}
           style={styles.filaTabla}
@@ -114,5 +138,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     color: "#000",
+  },
+  filtroContainer: {
+    marginBottom: 20,
+    backgroundColor: "#111",
+    padding: 15,
+    borderRadius: 10,
+  },
+  filtroTexto: {
+    color: "#ccc",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  switchLabel: {
+    color: "#fff",
+    fontSize: 16,
+    marginRight: 10,
   },
 });

@@ -206,6 +206,7 @@ const PerfilCliente = () => {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.contenedor}>
+        <Text style={styles.titulo}>Mi Perfil</Text>
         <TouchableOpacity
           onPress={editando ? seleccionarImagen : undefined}
           style={styles.avatarContenedor}
@@ -272,7 +273,7 @@ const PerfilCliente = () => {
               {editando && (
                 <Ionicons
                   name="pencil"
-                  size={20}
+                  size={15}
                   color="#FFD700"
                   style={{ marginLeft: 8 }}
                 />
@@ -322,9 +323,9 @@ const PerfilCliente = () => {
           />
           <TouchableOpacity
             onPress={manejarCambioPassword}
-            style={styles.botonCerrarSesion}
+            style={styles.botonEditar}
           >
-            <Text style={[styles.textoBoton, { color: "#FFD700" }]}>
+            <Text style={[styles.textoBoton]}>
               Actualizar Contraseña
             </Text>
           </TouchableOpacity>
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
   },
   infoTextoEditable: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 15,
     marginLeft: 15,
     flex: 1,
     borderBottomWidth: 1,
@@ -452,4 +453,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
   },
+  titulo: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFD700",
+    marginBottom: 12,
+    textAlign: "center",
+  }
 });

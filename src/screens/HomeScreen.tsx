@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   title: {
     fontSize: 26,
@@ -82,14 +82,16 @@ const styles = StyleSheet.create({
     color: '#FFD700',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#ccc',
+    fontSize: 25,
+    color: '#FFD700',
     textAlign: 'center',
     marginBottom: 30,
+    marginTop:40
   },
   menu: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    gap: 15,
   },
   menuButton: {
     backgroundColor: '#111',
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     padding: 20,
     borderRadius: 14,
-    marginBottom: 20,
+    marginBottom: 15,
     alignItems: 'center',
     shadowColor: '#FFD700',
     shadowOffset: { width: 0, height: 4 },
