@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 20000,
 });
 
 // Interceptor para agregar token a cada petición

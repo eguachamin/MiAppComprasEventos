@@ -102,7 +102,7 @@ export default function ComprarVinilos() {
     <View style={estilos.contenedor}>
       <Text style={estilos.titulo}>Catálogo de Vinilos</Text>
 
-      <TouchableOpacity onPress={() => router.replace("/carrito")}>
+      <TouchableOpacity onPress={() => router.replace("/carrito")} style={{ marginBottom: 10 }}>
         <Feather name="shopping-cart" size={26} color="#FFD700" />
         
       </TouchableOpacity>
@@ -255,7 +255,7 @@ const estilos = StyleSheet.create({
   },
   imagen: {
     width: "100%",
-    height: 150,
+    height: 300,
     borderRadius: 8,
     marginBottom: 8,
   },

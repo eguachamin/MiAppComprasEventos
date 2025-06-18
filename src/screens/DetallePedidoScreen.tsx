@@ -1,5 +1,5 @@
 // screens/DetallePedidoScreen.tsx
-
+import ZoomableImageModal from '@/components/modals/ZoomableImage'
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -12,6 +12,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { detalleHistorialCompras } from "@/services/carritoService";
 import { useRouter } from "expo-router";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function DetallePedidoScreen() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function DetallePedidoScreen() {
   return (
   <ScrollView style={styles.contenedor}>
     <Text style={styles.titulo}>Detalle del Pedido</Text>
-
+    <GestureHandlerRootView >
     <View style={styles.card}>
       {/* Fecha */}
       <Text style={styles.label}>Fecha:</Text>
@@ -94,16 +95,11 @@ export default function DetallePedidoScreen() {
           Tu pedido aún está en estado pendiente. Una vez procesado, aparecerá aquí el comprobante o guía de envío.
         </Text>
       ) : pedido.comprobanteEnvio ? (
-        <Image
-          source={{ uri: pedido.comprobanteEnvio }}
-          style={{
-            width: 150,
-            height: 150,
-            borderRadius: 10,
-            marginTop: 10,
-          }}
-          resizeMode="contain"
+        <ZoomableImageModal
+          uri= {pedido.comprobanteEnvio }
+          thumbnailSize={150}
         />
+        
       ) : (
         <Text style={styles.valor}>
           El administrador aún no ha cargado un comprobante de envío para este pedido.
@@ -127,7 +123,7 @@ export default function DetallePedidoScreen() {
           <Text style={styles.valor}>Cédula: {pedido.direccionEnvio.cedula}</Text>
         </View>
       )}
-
+      
       {/* Botón Volver */}
       <TouchableOpacity
         style={styles.botonVolver}
@@ -136,6 +132,7 @@ export default function DetallePedidoScreen() {
         <Text style={styles.textoBoton}>← Volver</Text>
       </TouchableOpacity>
     </View>
+    </GestureHandlerRootView>
   </ScrollView>
 );
 }

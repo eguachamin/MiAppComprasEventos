@@ -1,6 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Picker } from "@react-native-picker/picker";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  FlatList,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -8,19 +12,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import DropDownPicker from "react-native-dropdown-picker";
-import { Feather } from "@expo/vector-icons";
-import { Alert } from "react-native";
-import { registerUser } from "../services/userService";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { registroSchema } from "../utils/validators";
-import { router } from "expo-router";
 import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
-import React, { useState, useEffect } from "react";
+import { registerUser } from "../services/userService";
 import { provinciasConCiudades } from "../utils/provinciasCiudades";
+import { registroSchema } from "../utils/validators";
 
 const provincias = [
   "Azuay",
@@ -131,7 +128,7 @@ export default function PantallaRegistro() {
       ) {
         setShowEmail_Existente_Modal(true); // ← activa el modal
       } else {
-        // Puedes mostrar otros errores o loguearlos
+        // Mostrar otros errores o loguearlos
         console.error("Error desconocido en registro:", error);
       }
     }
@@ -209,14 +206,15 @@ export default function PantallaRegistro() {
           name="provincia"
           render={({ field: { onChange, value } }) => (
             <>
-              <Text style={estilos.etiqueta}>Provincia</Text>
-              <View style={[estilos.dropdown, { backgroundColor: "#222" }]}>
+                <View style={[estilos.pickerContainer, { marginBottom: 12 }]}>
                 <Picker
                   selectedValue={value}
                   onValueChange={(itemValue) => {
                     onChange(itemValue);
                   }}
-                  style={{ color: "white" }}
+                  style={{ color: "white",height: 50 }}
+                  dropdownIconColor="#FFD700" 
+                  
                 >
                   <Picker.Item label="Selecciona una provincia" value="" />
                   {provincias.map((p) => (
@@ -241,20 +239,21 @@ export default function PantallaRegistro() {
           name="ciudad"
           render={({ field: { onChange, value } }) => (
             <>
-              <Text style={estilos.etiqueta}>Ciudad</Text>
-              <View style={[estilos.dropdown, { backgroundColor: "#222" }]}>
+                <View style={[estilos.pickerContainer, { marginBottom: 12 }]}>
                 <Picker
                   selectedValue={value}
                   onValueChange={(itemValue) => {
                     onChange(itemValue);
                   }}
                   enabled={!!valorProvincia}
-                  style={{ color: "white" }}
+                  style={{ color: "white",  height: 50 }}
+                  dropdownIconColor="#FFD700" 
                 >
                   {!valorProvincia ? (
                     <Picker.Item
                       label="Primero selecciona una provincia"
                       value=""
+                      color="#999"
                     />
                   ) : (
                     ciudadItems.map((item) => (
@@ -360,16 +359,17 @@ const estilos = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 5,
   },
-  // ✅ Nuevo estilo para Picker
   pickerContainer: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#000",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#444",
     overflow: "hidden",
+    marginBottom: 12,
   },
   pickerItem: {
     color: "white",
     fontSize: 16,
   },
+  
 });
