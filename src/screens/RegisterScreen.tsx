@@ -18,7 +18,7 @@ import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
 import { registerUser } from "../services/userService";
 import { provinciasConCiudades } from "../utils/provinciasCiudades";
 import { registroSchema } from "../utils/validators";
-
+import { startCustomTrace, useScreenTrace } from '@/utils/usePerformance'
 const provincias = [
   "Azuay",
   "Bolívar",
@@ -58,6 +58,7 @@ type ValoresFormulario = {
 };
 
 export default function PantallaRegistro() {
+  useScreenTrace('registro_screen');
   const [showEmail_Existente_Modal, setShowEmail_Existente_Modal] =
     useState(false);
 
@@ -114,14 +115,18 @@ export default function PantallaRegistro() {
       Alert.alert("Error", "Las contraseñas no coinciden");
       return;
     }
-
+    const trace = await startCustomTrace('registro_flow');
     try {
       const respuesta = await registerUser(data);
       console.log("Registro exitoso:", respuesta);
+      await trace.stop();
       router.replace("/registroExitoso");
     } catch (error: any) {
+      await trace.stop(); // Detiene la traza incluso si hay error
+      // Iniciar otra traza específica para errores
+      const errorTrace = await startCustomTrace('registro_error');
+      await errorTrace.stop();
       console.log("Error capturado en enviarFormulario:", error);
-
       if (
         error?.response?.data?.msg ===
         "Lo sentimos, el email ya se encuentra registrado"
@@ -135,6 +140,7 @@ export default function PantallaRegistro() {
   };
 
   return (
+    
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={estilos.contenedor}

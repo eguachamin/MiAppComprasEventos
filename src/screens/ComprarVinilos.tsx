@@ -5,6 +5,7 @@ import Feather from "@expo/vector-icons/Feather"; //
 import { router } from "expo-router";
 import ModalMensaje from "@/components/modals/ModalMensaje";
 import { agregarAlCarrito } from "@/services/carritoService";
+import { startCustomTrace, stopCustomTrace, useScreenTrace } from "@/utils/usePerformance";
 
 interface Producto {
   id: string;
@@ -23,6 +24,7 @@ const normalizarTexto = (texto: string) =>
     .toLowerCase();
 
 export default function ComprarVinilos() {
+  useScreenTrace('compra_vinilos_screen');
   const [modalVisible, setModalVisible] = useState(false);
   const [mensajeModal, setMensajeModal] = useState("");
   const [cantidades, setCantidades] = useState<{ [id: string]: number }>({});
@@ -85,12 +87,21 @@ export default function ComprarVinilos() {
     productoId: string,
     cantidad: number = 1
   ) => {
+    let trace;
     try {
+      trace = await startCustomTrace('agregar_al_carrito_flow');
       await agregarAlCarrito(productoId, cantidad);
       setProductosEnCarrito((prev) => [...prev, productoId]);
       setMensajeModal("Producto añadido al carrito");
       setModalVisible(true);
+      await stopCustomTrace(trace);
     } catch (error:any) {
+      if (trace) {
+      await stopCustomTrace(trace);
+      }
+      // Opcional: iniciar otra traza específica para errores
+      const errorTrace = await startCustomTrace('agregar_al_carrito_error');
+      await errorTrace.stop();
       const mensaje = error.message || "Hubo un error al añadir al carrito";
       setMensajeModal(mensaje);
       setModalVisible(true);

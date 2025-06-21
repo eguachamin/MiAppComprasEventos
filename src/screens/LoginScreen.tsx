@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -8,6 +8,9 @@ import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
 import RecuperarPasswordModal from '../components/modals/RecuperarPasswordModal';
+import  {perf}  from '../../firebase'; // ajusta la ruta según tu estructura
+import { FirebasePerformanceTypes } from '@react-native-firebase/perf';
+import { startCustomTrace } from '@/utils/usePerformance';
 
 type FormData = {
   email: string;
@@ -27,11 +30,32 @@ export default function LoginScreen() {
   const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
   const [mostrarModalRecuperar, setMostrarModalRecuperar] = useState(false);
 
+  useEffect(() => {
+    let screenTrace: FirebasePerformanceTypes.ScreenTrace;
+
+    const startPerformanceMonitoring = async () => {
+      screenTrace = await perf().startScreenTrace('login_screen');
+    };
+
+    startPerformanceMonitoring();
+
+    return () => {
+      if (screenTrace) {
+        screenTrace.stop();
+      }
+    };
+  }, []);
   const onSubmit = async (data: FormData) => {
     try {
+      // Inicia el trazo personalizado
+      const trace = perf().newTrace('login_flow');
+      await trace.start();
+      // Ejecuta el login real
       const res = await loginUser(data);
       console.log('Respuesta login:', res);
-
+      // Detén el trazo después de terminar
+      await trace.stop();
+      //Guarda el Token
       const { token, _id, ...userData } = res;
       await login(token, { id: _id, ...userData });
       // ✅ Aquí guardamos el token de notificaciones push
@@ -39,8 +63,15 @@ export default function LoginScreen() {
       
       router.replace('/home');
     } catch (error: any) {
+      const traceFallback = perf().newTrace('login_flow');
+      await traceFallback.start();
+      await traceFallback.stop();
+      // Opcional: iniciar otra traza específica para errores
+      const errorTrace = await startCustomTrace('login_error');
+      await errorTrace.stop();
       const msg = error?.response?.data?.msg || 'Error al iniciar sesión';
-      console.log('Error en el login:', error);  // Asegúrate de ver esto en consola
+      console.log('Error en el login:', error);
+
       if (msg.toLowerCase().includes('verificar')) {
         setCorreoPendiente(data.email);
         setIsModalVisible(true);
@@ -125,7 +156,7 @@ export default function LoginScreen() {
           ¿Olvidaste tu contraseña? <Text style={styles.highlight}>Da clic aquí</Text>
         </Text>
       </TouchableOpacity>
-       <TouchableOpacity onPress={() => router.push('/register')}>
+        <TouchableOpacity onPress={() => router.push('/register')}>
         <Text style={styles.registerText}>
           ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
         </Text>

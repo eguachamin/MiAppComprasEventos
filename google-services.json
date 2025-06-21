@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "41624163630",
+    "project_id": "proyecto--tesis-prueba",
+    "storage_bucket": "proyecto--tesis-prueba.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41624163630:android:1e76ff9ac63755220f56bf",
+        "android_client_info": {
+          "package_name": "com.evelyn97.miappcompraseventos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOVi2ZcN1HZQElQCOMVdhmYa95pzaJZ0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

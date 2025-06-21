@@ -13,18 +13,27 @@ import { useLocalSearchParams } from "expo-router";
 import { detalleHistorialCompras } from "@/services/carritoService";
 import { useRouter } from "expo-router";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { startCustomTrace, stopCustomTrace, useScreenTrace } from '@/utils/usePerformance';
 
 export default function DetallePedidoScreen() {
+  useScreenTrace('detalle_pedido_screen');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [pedido, setPedido] = useState<any>(null);
 
   useEffect(() => {
     const cargarDetalle = async () => {
+      let trace;
       try {
+        trace = await startCustomTrace('detalle_pedido_flow');
+        // Opcional: iniciar otra traza específica para errores
+        const errorTrace = await startCustomTrace('detalle_pedido_error');
+        await errorTrace.stop();
         const data = await detalleHistorialCompras(id); // Tu backend tiene: /compras/detallehistorial/:id
         setPedido(data);
+        await stopCustomTrace(trace);
       } catch (error) {
+        if (trace) await stopCustomTrace(trace);
         console.error("Error al cargar el detalle del pedido:", error);
       }
     };

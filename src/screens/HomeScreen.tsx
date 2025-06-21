@@ -27,7 +27,8 @@ export default function HomeScreen() {
         <View style={{ flexDirection: 'row', gap: 15 }}>
 
          {/* Botón de campana */}
-        <TouchableOpacity onPress={() => router.push('/notificaciones')}>
+        <TouchableOpacity onPress={() => router.push('/notificaciones')}
+          accessibilityLabel="campana_notificaciones">
             <Feather name="bell" size={26} color="#FFD700" />
             {cantidadNoLeidas > 0 && (
               <View style={styles.badge}>
@@ -40,7 +41,7 @@ export default function HomeScreen() {
         <TouchableOpacity onPress={() => {
           useAuthStore.getState().logout();
           router.replace('/login');
-        }}>
+        }} accessibilityLabel="salir_login">
           <Feather name="log-out" size={26} color="#FFD700" />
         </TouchableOpacity>
       </View>

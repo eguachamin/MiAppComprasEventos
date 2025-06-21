@@ -23,6 +23,7 @@ import {
   finalizarCompraEnBackend,
 } from "@/services/carritoService";
 import { validateCedulaOrRUC } from '../utils/validators'
+import { startCustomTrace, stopCustomTrace, useScreenTrace } from "@/utils/usePerformance";
 
 
 type ProductoCarrito = {
@@ -34,6 +35,7 @@ type ProductoCarrito = {
 
 
 export default function CarritoCompras() {
+  useScreenTrace('carrito_screen');
   //Para cambiar de página
   const route = useRouter();
   // Modales
@@ -467,10 +469,12 @@ const handleCedulaChange = (text: string) => {
 
           formData.append("comprobantePago", file as any);
         }
+        let trace;
     try {
-    const resultado = await finalizarCompraEnBackend(formData);
-    console.log("Compra exitosa:", resultado);
-
+      trace = await startCustomTrace('carrito_flow');
+      const resultado = await finalizarCompraEnBackend(formData);
+      console.log("Compra exitosa:", resultado);
+      await stopCustomTrace(trace);
     setModalCompraExitosaVisible(true);
     // Vaciar carrito local (no hace falta llamar al backend otra vez)
       setCarrito({ ...carrito, productos: [], total: 0 });
@@ -485,6 +489,10 @@ const handleCedulaChange = (text: string) => {
       setFormaPago("");
     
     } catch (error) {
+      if (trace) await stopCustomTrace(trace);
+      // Iniciar otra traza específica para errores
+      const errorTrace = await startCustomTrace('carrito_error');
+      await errorTrace.stop();
       console.error("Error al finalizar compra:", error);
       setModalMensajeTexto("Ocurrió un error al procesar la compra");
       setModalMensajeVisible(true);
