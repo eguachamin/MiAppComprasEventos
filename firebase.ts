@@ -1,10 +1,6 @@
-import { config } from 'dotenv';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/auth';
 import perf from '@react-native-firebase/perf';
-
-// Cargar variables de entorno
-config();
 
 // Inicializa Firebase solo si no se ha inicializado antes
 if (!firebase.apps.length) {
