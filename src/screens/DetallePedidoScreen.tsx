@@ -106,7 +106,8 @@ export default function DetallePedidoScreen() {
         </Text>
       )}
 
-      {pedido.estado === "enviado" && (
+      {/* Fecha de Envío solo si está enviado y NO es entrega en persona */}
+      {pedido.estado === "enviado" && pedido.metodoEnvio !== "encuentro-publico" && (
         <>
           <Text style={styles.label}>Fecha de Envío:</Text>
           <Text style={styles.valor}>
