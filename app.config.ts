@@ -29,7 +29,10 @@ const config: CustomExpoConfig = {
         adaptiveIcon: {
             foregroundImage: "./src/assets/images/imagenapk.png",
             backgroundColor: "#FFFFFF"
-        }
+        },
+        permissions: [
+            "INTERNET"
+        ]
     },
     web: {
         favicon: "./src/assets/images/favicon.png"

@@ -149,7 +149,6 @@ const PerfilCliente = () => {
         mensaje: "Perfil actualizado correctamente.",
       });
 
-      Alert.alert("Éxito", "Perfil actualizado correctamente.");
       setEditando(false);
       setEliminarFoto(false);
     } catch (error: any) {
@@ -158,7 +157,6 @@ const PerfilCliente = () => {
         visible: true,
         mensaje: error.message || "Hubo un problema al actualizar tu perfil.",
       });
-      Alert.alert("Error", error.message || "Hubo un problema al actualizar.");
     } finally {
       // Siempre limpiar eliminarFoto para evitar estados confusos
       setEliminarFoto(false);
@@ -182,12 +180,14 @@ const PerfilCliente = () => {
     try {
       await cambiarPassword({ passwordactual, passwordnuevo });
       setModalVisible(true);
-      Alert.alert("Éxito", "Contraseña actualizada.");
       setPasswordactual("");
       setPasswordnuevo("");
       useAuthStore.getState().logout();
     } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar la contraseña.");
+      setModalMensaje({
+        visible: true,
+        mensaje: "Error, No se pudo actualizar la contraseña.",
+      });
     }
   };
 
