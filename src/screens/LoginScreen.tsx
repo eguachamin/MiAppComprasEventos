@@ -8,9 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
 import RecuperarPasswordModal from '../components/modals/RecuperarPasswordModal';
-import  {perf}  from '../../firebase'; // ajusta la ruta según tu estructura
-import { FirebasePerformanceTypes } from '@react-native-firebase/perf';
-import { startCustomTrace } from '@/utils/usePerformance';
+import { startCustomTrace, useScreenTrace } from '@/utils/usePerformance';
 
 type FormData = {
   email: string;
@@ -30,26 +28,12 @@ export default function LoginScreen() {
   const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
   const [mostrarModalRecuperar, setMostrarModalRecuperar] = useState(false);
 
-  useEffect(() => {
-    let screenTrace: FirebasePerformanceTypes.ScreenTrace;
 
-    const startPerformanceMonitoring = async () => {
-      screenTrace = await perf().startScreenTrace('login_screen');
-    };
-
-    startPerformanceMonitoring();
-
-    return () => {
-      if (screenTrace) {
-        screenTrace.stop();
-      }
-    };
-  }, []);
   const onSubmit = async (data: FormData) => {
+    useScreenTrace('login_screen');
+    const trace = await startCustomTrace('login_flow');
     try {
-      // Inicia el trazo personalizado
-      const trace = perf().newTrace('login_flow');
-      await trace.start();
+      
       // Ejecuta el login real
       const res = await loginUser(data);
       console.log('Respuesta login:', res);
@@ -63,12 +47,11 @@ export default function LoginScreen() {
       
       router.replace('/home');
     } catch (error: any) {
-      const traceFallback = perf().newTrace('login_flow');
-      await traceFallback.start();
-      await traceFallback.stop();
-      // Opcional: iniciar otra traza específica para errores
+      await trace.stop(); // Detiene la traza incluso si hay error
+      // Iniciar otra traza específica para errores
       const errorTrace = await startCustomTrace('login_error');
       await errorTrace.stop();
+      
       const msg = error?.response?.data?.msg || 'Error al iniciar sesión';
       console.log('Error en el login:', error);
 
@@ -111,6 +94,7 @@ export default function LoginScreen() {
         defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
+            accessibilityLabel="campo_email"
             placeholder="ejemplo@correo.com"
             value={value}
             onChangeText={onChange}
@@ -128,6 +112,7 @@ export default function LoginScreen() {
         defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
+            accessibilityLabel="campo_password"
             placeholder="••••••••"
             secureTextEntry={!showPassword}
             value={value}
@@ -148,7 +133,10 @@ export default function LoginScreen() {
 
       {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
+      <TouchableOpacity
+        accessibilityLabel="boton_login"
+        style={styles.button}
+        onPress={handleSubmit(onSubmit)}>
         <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => setMostrarModalRecuperar(true)}>

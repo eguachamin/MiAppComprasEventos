@@ -11,10 +11,10 @@ export default function HomeScreen() {
   const cantidadNoLeidas = useNotificacionStore((state) => state.cantidadNoLeidas);
 
   const menuItems = [
-    { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' },
-    { label: 'Mis Pedidos', iconName: 'shopping-bag', route: '/pedidos' },
-    { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario' },
-    { label: 'Info de Eventos', iconName: 'info', route: '/eventos' },
+    { label: 'Comprar Vinilos', iconName: 'music', route: '/vinilo' ,accessibilityLabel: 'boton_comprar_vinilos'},
+    { label: 'Mis Pedidos', iconName: 'shopping-bag', route: '/pedidos',accessibilityLabel: 'boton_mis_pedidos'},
+    { label: 'Mi Perfil', iconName: 'user', route: '/perfilusuario',accessibilityLabel: 'boton_mi_perfil'},
+    { label: 'Info de Eventos', iconName: 'info', route: '/eventos',accessibilityLabel: 'boton_info_eventos'},
   ];
 
   return (
@@ -55,6 +55,7 @@ export default function HomeScreen() {
             key={item.route}
             style={styles.menuButton}
             onPress={() => router.push(item.route as any)}
+            accessibilityLabel={item.accessibilityLabel || item.label}
           >
             <Feather name={item.iconName as any} size={30} color="#FFD700" />
             <Text style={styles.menuText}>{item.label}</Text>
