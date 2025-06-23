@@ -17,6 +17,10 @@ export default function PedidosScreen() {
   const [pedidos, setPedidos] = useState<any[]>([]);
   const router = useRouter();
 
+  const capitalizarPrimeraLetra = (texto: string) => {
+  if (!texto) return '';
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+};
   useEffect(() => {
     const cargarPedidos = async () => {
       try {
@@ -72,7 +76,7 @@ export default function PedidosScreen() {
           }
         >
           <Text style={[styles.celda, styles.celdaNombre]}>
-            {pedido.estado}
+            {capitalizarPrimeraLetra(pedido.estado)}
           </Text>
           <Text style={styles.celda}>
             {new Date(pedido.fechaCompra).toLocaleDateString()}
