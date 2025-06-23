@@ -25,23 +25,15 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>🎧 DJ Edwin</Text>
         <View style={{ flexDirection: 'row', gap: 15 }}>
-
-         {/* Botón de campana */}
-        <TouchableOpacity onPress={() => router.push('/notificaciones')}>
-            <Feather name="bell" size={26} color="#FFD700" />
-            {cantidadNoLeidas > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{cantidadNoLeidas}</Text>
-              </View>
-            )}
-          
-        </TouchableOpacity>
         {/* Botón de logout */}
         <TouchableOpacity onPress={() => {
           useAuthStore.getState().logout();
           router.replace('/login');
-        }}>
+        }}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+        >
           <Feather name="log-out" size={26} color="#FFD700" />
+          <Text style={{ color: '#FFD700',  fontSize: 20 }}>Salir</Text>
         </TouchableOpacity>
       </View>
       </View>

@@ -8,7 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
 import RecuperarPasswordModal from '../components/modals/RecuperarPasswordModal';
-import Constants from 'expo-constants';
+
 
 type FormData = {
   email: string;
@@ -30,27 +30,7 @@ export default function LoginScreen() {
   const [testLoginMsg, setTestLoginMsg] = useState('');
   //🚨 Login automático para Firebase Test Lab - NO afecta usuarios normales
 
-  const isTestLab = () => {
-  const deviceName = Constants.deviceName?.toLowerCase() || '';
-  console.log('🚀 Device Name detectado:', deviceName);
-  return deviceName.includes('test') || deviceName.includes('firebase');
-  };
-  useEffect(() => {
-    if (isTestLab()) {loginUser({ email: 'evetaty1997@outlook.com', password: '1234-Hola' })
-      .then(() => router.replace('/home'))
-      .catch(console.error);
-    }
-  }, []);
-  const triggerTestLogin = async () => {
-    try {
-      setTestLoginMsg('Iniciando login de prueba...');
-      await loginUser({ email: 'evetaty1997@outlook.com', password: '1234-Hola' });
-      router.replace('/home');
-    } catch (e) {
-      setTestLoginMsg('Error en login de prueba');
-      console.error(e);
-    }
-  };
+ 
   const onSubmit = async (data: FormData) => {
     try {
       const res = await loginUser(data);
@@ -154,10 +134,7 @@ export default function LoginScreen() {
           ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={triggerTestLogin}
-        style={styles.testLabTrigger}
-      />
+      
       <CorreoNoVerificado_Modal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
@@ -230,14 +207,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 10,
     marginLeft: 4,
-  },
-   testLabTrigger: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    top: 0,
-    left: 0,
-    opacity: 0,
-    zIndex: 9999,
-  },
+  }
 });
