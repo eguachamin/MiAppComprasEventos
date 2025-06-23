@@ -32,7 +32,9 @@ const config: CustomExpoConfig = {
             backgroundColor: "#FFFFFF"
         },
         permissions: [
-            "INTERNET"
+            "INTERNET",
+            "POST_NOTIFICATIONS"
+            
         ]
     },
     web: {

@@ -12,6 +12,9 @@ export async function getExpoPushToken() {
         }
     }
 
-    const tokenData = await Notifications.getExpoPushTokenAsync();
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+    experienceId: '@tatiana97/tesiseguachaminapp',
+    }as any);
+        console.log("🎯 Token generado:", tokenData);
     return tokenData.data; // Devuelve solo la parte del token
 }

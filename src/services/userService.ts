@@ -3,6 +3,8 @@ import api from "./api";
 import { useAuthStore } from "@/store/authStore";
 import * as Notifications from 'expo-notifications';
 import { Platform } from "react-native";
+import { getExpoPushToken } from '@/utils/notificaciones'; // usa el helper unificado
+
 
 export interface RegistroPayload {
   nombre: string;
@@ -216,12 +218,10 @@ export async function saveExpoPushToken() {
       return;
     }
 
-     // Solo intentamos obtener el token en dispositivos móviles
     if (Platform.OS !== 'web') {
-      //Recordar que debo borrar el simulado
-      //const expoPushToken="ExponentPushToken[simuladoManualmente123]";
-      const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log("🎯 Token generado:", expoPushToken); // ✅ Aquí lo ves
+      const expoPushToken = await getExpoPushToken();
+      if (!expoPushToken) return;
+
       const response = await api.put(
         "/cliente/actualizar-push-token",
         { expoPushToken },
@@ -247,3 +247,4 @@ export async function saveExpoPushToken() {
     });
   }
 }
+
