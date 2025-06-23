@@ -44,7 +44,15 @@ const config: CustomExpoConfig = {
         }
     },
     plugins: [
-        "expo-web-browser"
+        "expo-web-browser",
+        [
+        "expo-build-properties",
+            {
+                android: {
+                    googleServicesFile: "./firebase/google-services.json"
+                }
+            }
+        ]
     ]
 };
 

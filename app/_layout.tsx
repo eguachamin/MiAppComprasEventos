@@ -7,6 +7,17 @@ import { Stack } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
 import { useNotificacionStore } from '@/store/notificacionStore'; // Asegúrate de tener este store
 
+// 🔴 Agrega esto fuera del componente RootLayout
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,   // mostrar banner en primer plano
+    shouldPlaySound: true,    // reproducir sonido
+    shouldShowAlert: false,   // deprecated, no lo uses
+    shouldSetBadge: false,
+    shouldShowList: true,     // mostrar en el centro de notificaciones
+  }),
+});
+
 export default function RootLayout() {
   const loadStorage = useAuthStore((state) => state.loadStorage);
   const isLoading = useAuthStore((state) => state.isLoading);
