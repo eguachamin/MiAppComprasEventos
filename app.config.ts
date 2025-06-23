@@ -26,6 +26,7 @@ const config: CustomExpoConfig = {
     },
     android: {
         package: "com.tatiana97.tesiseguachaminapp",
+        googleServicesFile: "./firebase/google-services.json",
         adaptiveIcon: {
             foregroundImage: "./src/assets/images/imagenapk.png",
             backgroundColor: "#FFFFFF"
@@ -41,7 +42,10 @@ const config: CustomExpoConfig = {
         eas: {
             projectId: "179f9a10-a566-4fe3-b9a8-4abb4e35f04f"
         }
-    }
+    },
+    plugins: [
+        "expo-web-browser"
+    ]
 };
 
 export default config;

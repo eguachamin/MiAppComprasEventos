@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "392089021306",
+    "project_id": "vinilosedwindjnotificaciones",
+    "storage_bucket": "vinilosedwindjnotificaciones.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392089021306:android:d23a273e8e1c49ea2b04c3",
+        "android_client_info": {
+          "package_name": "com.tatiana97.tesiseguachaminapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgowKa9pEO6HADhTq-dPHIs3jWsWDhNpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
