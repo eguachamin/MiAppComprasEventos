@@ -34,7 +34,6 @@ const config: CustomExpoConfig = {
         permissions: [
             "INTERNET",
             "POST_NOTIFICATIONS"
-            
         ]
     },
     web: {
