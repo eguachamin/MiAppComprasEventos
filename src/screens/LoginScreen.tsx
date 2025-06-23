@@ -27,29 +27,30 @@ export default function LoginScreen() {
   const [reenviando, setReenviando] = useState(false);
   const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
   const [mostrarModalRecuperar, setMostrarModalRecuperar] = useState(false);
+  const [testLoginMsg, setTestLoginMsg] = useState('');
   //🚨 Login automático para Firebase Test Lab - NO afecta usuarios normales
+
   const isTestLab = () => {
-  const deviceName = Constants.deviceName || '';
-  return deviceName.includes('Test') || deviceName.includes('Firebase');
+  const deviceName = Constants.deviceName?.toLowerCase() || '';
+  console.log('🚀 Device Name detectado:', deviceName);
+  return deviceName.includes('test') || deviceName.includes('firebase');
   };
   useEffect(() => {
-    if (isTestLab()) {
-      // Datos de usuario prueba (debes crear este usuario en backend)
-      const testUser = {
-        email: 'evetaty1997@outlook.com',
-        password: '1234-Hola',
-      };
-
-      loginUser(testUser)
-        .then(() => {
-          // Aquí navega a la pantalla principal o home
-          router.replace('/home'); // Ajusta según tu ruta real
-        })
-        .catch((error) => {
-          console.log('Error en login automático:', error);
-        });
+    if (isTestLab()) {loginUser({ email: 'evetaty1997@outlook.com', password: '1234-Hola' })
+      .then(() => router.replace('/home'))
+      .catch(console.error);
     }
   }, []);
+  const triggerTestLogin = async () => {
+    try {
+      setTestLoginMsg('Iniciando login de prueba...');
+      await loginUser({ email: 'evetaty1997@outlook.com', password: '1234-Hola' });
+      router.replace('/home');
+    } catch (e) {
+      setTestLoginMsg('Error en login de prueba');
+      console.error(e);
+    }
+  };
   const onSubmit = async (data: FormData) => {
     try {
       const res = await loginUser(data);
@@ -148,12 +149,15 @@ export default function LoginScreen() {
           ¿Olvidaste tu contraseña? <Text style={styles.highlight}>Da clic aquí</Text>
         </Text>
       </TouchableOpacity>
-       <TouchableOpacity onPress={() => router.push('/register')}>
+      <TouchableOpacity onPress={() => router.push('/register')}>
         <Text style={styles.registerText}>
           ¿No tienes cuenta? <Text style={styles.highlight}>Regístrate</Text>
         </Text>
       </TouchableOpacity>
-
+      <TouchableOpacity
+        onPress={triggerTestLogin}
+        style={styles.testLabTrigger}
+      />
       <CorreoNoVerificado_Modal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
@@ -226,5 +230,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 10,
     marginLeft: 4,
+  },
+   testLabTrigger: {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    top: 0,
+    left: 0,
+    opacity: 0,
+    zIndex: 9999,
   },
 });
