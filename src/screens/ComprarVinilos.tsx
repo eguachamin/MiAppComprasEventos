@@ -87,10 +87,16 @@ export default function ComprarVinilos() {
   ) => {
     try {
       await agregarAlCarrito(productoId, cantidad);
+      //Pruebas de Funcionalidad
+      console.log("✓ Producto agregado al carrito");
+      console.log("Producto:", productoId," ",cantidad);
+
       setProductosEnCarrito((prev) => [...prev, productoId]);
       setMensajeModal("Producto añadido al carrito");
       setModalVisible(true);
+
     } catch (error:any) {
+      
       const mensaje = error.message || "Hubo un error al añadir al carrito";
       setMensajeModal(mensaje);
       setModalVisible(true);

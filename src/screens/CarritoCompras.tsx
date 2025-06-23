@@ -455,9 +455,14 @@ const handleCedulaChange = (text: string) => {
 
   try {
     const resultado = await finalizarCompraEnBackend(formData);
-    console.log("Compra exitosa:", resultado);
+    //Prueba de Funcionamiento
+    console.log("✓ Compra finalizada con éxito");
+    console.log("Datos enviados al backend:", formData);
+    console.log("Respuesta del servidor:", resultado?.status);
+    if (resultado?.data?.msg?.includes("éxito")) {
+    console.log("📩 Notificación enviada al administrador sobre la nueva compra");
+    }
     setModalCompraExitosaVisible(true);
-
     // 🧹 Limpiar estados
     setCarrito({ ...carrito, productos: [], total: 0 });
     setProductos([]);
@@ -470,7 +475,8 @@ const handleCedulaChange = (text: string) => {
     setZonaOtra(false);
     setFormaPago("");
   } catch (error: any) {
-    console.error("Error al finalizar compra:", error);
+    //Prueba de Funcinamiento
+    console.log("✗ Error al registrar usuario:", error.message);
     const msg = error?.response?.data?.msg || error?.message || "Ocurrió un error al procesar la compra";
     setModalMensajeTexto(msg);
     setModalMensajeVisible(true);

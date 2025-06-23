@@ -21,14 +21,18 @@ export default function DetallePedidoScreen() {
 
   useEffect(() => {
     const cargarDetalle = async () => {
+      
       try {
-        const data = await detalleHistorialCompras(id); // Tu backend tiene: /compras/detallehistorial/:id
+        const data = await detalleHistorialCompras(id);
+        //Prueba de Funcionamiento
+        console.log("✓ Mostrando detalle del pedido: ",id);
+        console.log("Disco: ", data?.nombreDisco);
         setPedido(data);
       } catch (error) {
-        console.error("Error al cargar el detalle del pedido:", error);
+        //Prueba de Funcionamiento
+        console.error("✗ Error al cargar el detalle del pedido:", error);
       }
     };
-
     if (id) {
       cargarDetalle();
     }

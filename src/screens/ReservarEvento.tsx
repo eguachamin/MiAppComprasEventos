@@ -9,9 +9,17 @@ export default function InformacionEventosScreen() {
 
   useEffect(() => {
     const cargarBanners = async () => {
-      const datos = await obtenerBanners();
-      setBanners(datos);
-      setLoading(false);
+      try {
+        const datos = await obtenerBanners();
+        // Prueba de funcionamiento
+        console.log("✓ Banners promocionales cargados correctamente");
+        console.log("Cantidad de banners recibidos:", datos.length);
+        console.log("Primer banner:", datos[0]);
+        setBanners(datos);
+        setLoading(false);
+      } catch (error: any) {
+        console.log("✗ Error al cargar los banners:", error.message);
+      }
     };
 
     cargarBanners();

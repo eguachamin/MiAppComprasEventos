@@ -117,10 +117,18 @@ export default function PantallaRegistro() {
 
     try {
       const respuesta = await registerUser(data);
-      console.log("Registro exitoso:", respuesta);
+      //Pruebas de Funcionalidad
+      console.log("✓ Usuario registrado correctamente");
+      console.log("Datos enviados:", data);
+      console.log("Respuesta del servidor:", respuesta.status);
+      if (respuesta?.data?.msg?.includes("confirmar")) {
+      console.log("📩 Notificación enviada al administrador sobre la nueva compra");
+      }
       router.replace("/registroExitoso");
+
     } catch (error: any) {
-      console.log("Error capturado en enviarFormulario:", error);
+      //Pruebas de Funcionalidad
+      console.log("✗ Error al registrar usuario:", error.message);
 
       if (
         error?.response?.data?.msg ===

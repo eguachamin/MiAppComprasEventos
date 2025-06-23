@@ -143,7 +143,12 @@ const PerfilCliente = () => {
     const imagenParaEnviar = eliminarFoto ? null : imagen;
     console.log("Imagen para enviar:", imagenParaEnviar);
     try {
-      await actualizarCliente(perfil, imagenParaEnviar, eliminarFoto);
+      const response=await actualizarCliente(perfil, imagenParaEnviar, eliminarFoto);
+      //Prueba de Funcionamiento
+      console.log("✓ Datos del perfil actualizados correctamente");
+      console.log("Datos enviados:", perfil);
+      console.log("Respuesta del servidor:", response?.status);
+
       setModalMensaje({
         visible: true,
         mensaje: "Perfil actualizado correctamente.",
@@ -152,7 +157,8 @@ const PerfilCliente = () => {
       setEditando(false);
       setEliminarFoto(false);
     } catch (error: any) {
-      console.error("Error al actualizar perfil:", error);
+      //Prueba de Funcionamiento
+      console.log("✗ Error al actualizar perfil:", error.message);
       setModalMensaje({
         visible: true,
         mensaje: error.message || "Hubo un problema al actualizar tu perfil.",
@@ -178,12 +184,19 @@ const PerfilCliente = () => {
       return;
     }
     try {
-      await cambiarPassword({ passwordactual, passwordnuevo });
+      const response=await cambiarPassword({ passwordactual, passwordnuevo });
+      //Prueba de Funcinamiento
+      console.log("✓ Contraseña actualizada correctamente");
+      console.log("Datos enviados:", { passwordactual, passwordnuevo });
+      console.log("Respuesta del servidor:", response?.status);
+
       setModalVisible(true);
       setPasswordactual("");
       setPasswordnuevo("");
       useAuthStore.getState().logout();
-    } catch (error) {
+    } catch (error:any) {
+      //Prueba de Funcionamiento
+      console.log("✗ Error al actualizar la contraseña:", error?.message || error);
       setModalMensaje({
         visible: true,
         mensaje: "Error, No se pudo actualizar la contraseña.",
