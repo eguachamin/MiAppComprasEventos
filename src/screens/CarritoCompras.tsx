@@ -288,208 +288,194 @@ const handleCedulaChange = (text: string) => {
     return new File([u8arr], filename, { type: mime });
   };
   const finalizarCompra = async () => {
-    const cedulaValida = validateCedulaOrRUC(cedula);
-    // Validar que el carrito esté disponible
-    if (!carrito || !carrito.productos?.length) {
-      setModalMensajeTexto("No hay productos en el carrito");
+  const cedulaValida = validateCedulaOrRUC(cedula);
+
+  // ✅ Validación: carrito vacío
+  if (!carrito || !carrito.productos?.length) {
+    setModalMensajeTexto("No hay productos en el carrito");
+    setModalMensajeVisible(true);
+    return;
+  }
+
+  // ✅ Validación: stock suficiente
+  const hayStockSuficiente = carrito.productos.every(
+    (item) => item.cantidad <= item.producto.stock
+  );
+
+  if (!hayStockSuficiente) {
+    setModalMensajeTexto("Hay productos cuya cantidad excede el stock disponible");
+    setModalMensajeVisible(true);
+    return;
+  }
+
+  // ✅ Validación: opción de envío seleccionada
+  if (envioProvincia === false && !zonaSurServientre && !zonaOtra) {
+    setModalMensajeTexto("Debes seleccionar una opción de envío antes de continuar.");
+    setModalMensajeVisible(true);
+    return;
+  }
+
+  // ✅ Validaciones para provincia
+  if (envioProvincia) {
+    if (!cedula || !cedulaValida) {
+      setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
       setModalMensajeVisible(true);
       return;
     }
-
-    // Validar que las cantidades no excedan el stock
-    const hayStockSuficiente = carrito.productos.every(
-      (item) => item.cantidad <= item.producto.stock
-    );
-
-    if (!hayStockSuficiente) {
-      setModalMensajeTexto(
-        "Hay productos cuya cantidad excede el stock disponible"
-      );
+    if (!nombreRecibe) {
+      setModalMensajeTexto("Debe ingresar el nombre y apellidos de la persona que recibe");
       setModalMensajeVisible(true);
       return;
     }
-    // Validaciones para envío a Provincia
-    if (envioProvincia === false && !zonaSurServientre && !zonaOtra) {
-      setModalMensajeTexto(
-        "Debes seleccionar una opción de envío antes de continuar."
-      );
+    if (!nombre) {
+      setModalMensajeTexto("Debe ingresar el nombre del titular de la cuenta");
       setModalMensajeVisible(true);
       return;
     }
-    if (envioProvincia) {
-      if (!cedula) {
-        setModalMensajeTexto(
-          "Debe ingresar su número de cédula para envíos a provincia"
-        );
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!cedula || cedulaValida !== true) {
-        setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!nombreRecibe) {
-        setModalMensajeTexto(
-          "Debe ingresar el nombre y apellidos de la persona que recibe"
-        );
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!nombre || !nombre) {
-        setModalMensajeTexto("Debe ingresar nombre del titular de la cuenta");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (formaPago === "transferencia" && !comprobante) {
-        setModalMensajeTexto("Debe subir el comprobante de transferencia");
-        setModalMensajeVisible(true);
-        return;
-      }
+    if (formaPago === "transferencia" && !comprobante) {
+      setModalMensajeTexto("Debe subir el comprobante de transferencia");
+      setModalMensajeVisible(true);
+      return;
     }
+  }
 
-    // Validaciones para envío en Quito
-    if (!envioProvincia && zonaSurServientre) {
-      if (!cedula) {
-        setModalMensajeTexto("Debe ingresar su número de cédula");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!cedula || cedulaValida !== true) {
-        setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!nombreRecibe) {
-        setModalMensajeTexto(
-          "Debe ingresar el nombre y apellidos de la persona que recibe"
-        );
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!nombre || !nombre) {
-        setModalMensajeTexto("Debe ingresar nombre  del titular de la cuenta");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (
-        !callePrincipal ||
-        !calleSecundaria ||
-        !numeracion ||
-        !referencia ||
-        !provincia ||
-        !ciudad
-      ) {
-        setModalMensajeTexto("Debe completar la dirección completa");
-        setModalMensajeVisible(true);
-        return;
-      }
-      if (!comprobante) {
-        setModalMensajeTexto("Debe subir el comprobante de transferencia");
-        setModalMensajeVisible(true);
-        return;
-      }
+  // ✅ Validaciones para Quito - zona sur (con Servientrega)
+  if (!envioProvincia && zonaSurServientre) {
+    if (!cedula || !cedulaValida) {
+      setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
+      setModalMensajeVisible(true);
+      return;
     }
-    
-    // No se valida nada adicional para "Encuentro en lugar público"
-    // Solo se requiere nombre, teléfono y correo, que se asume ya tienes como parte del perfil
-    const formaPagoFinal = envioProvincia === true || zonaSurServientre === true  ? "transferencia" : "efectivo";
-    const requiereDatosEnvio = envioProvincia ===true || zonaSurServientre === true
-    
-    const zonaEnvio = envioProvincia ===true ? "provincia" : "quito";
-
-    let metodoEnvio = "encuentro-publico";  // valor por defecto
-
-    if (envioProvincia === true) {
-      metodoEnvio = "servientrega";  // Provincia siempre servientrega
-    } else if (zonaSurServientre===true) {
-      metodoEnvio = "servientrega";  // Quito con Servientrega
-    } 
-    let costoEnvio = 0;
-    if (envioProvincia=== true) {
-      costoEnvio = 6;
-    } else if (zonaSurServientre=== true) {
-      costoEnvio = 3;
+    if (!nombreRecibe) {
+      setModalMensajeTexto("Debe ingresar el nombre y apellidos de la persona que recibe");
+      setModalMensajeVisible(true);
+      return;
     }
-      const pedido = {
-        cliente:idCliente,
-        productos: carrito.productos.map((item) => ({
-          producto: item.producto._id,
-          cantidad: item.cantidad,
-          nombre:item.producto.nombreDisco,
-          precio:item.producto.precio,
-        })),
-        direccion:requiereDatosEnvio ?{
-                callePrincipal,
-                calleSecundaria,
-                numeracion,
-                referencia,
-                provincia,
-                ciudad,
-                cedula,
-                nombreRecibe
-              }
-            : null,
-        zonaEnvio,
-        metodoEnvio,
-        costoEnvio, // puede ser "Servientrega" o "Encuentro en lugar público"
-        formaPago:formaPagoFinal,
-        nombre,
-        telefono,
-        comprobantePago: comprobante || null,
-        total: carrito.total,
+    if (!nombre) {
+      setModalMensajeTexto("Debe ingresar el nombre del titular de la cuenta");
+      setModalMensajeVisible(true);
+      return;
+    }
+    const direccionIncompleta = [
+      callePrincipal,
+      calleSecundaria,
+      numeracion,
+      referencia,
+      provincia,
+      ciudad,
+    ].some((campo) => !campo);
+    if (direccionIncompleta) {
+      setModalMensajeTexto("Debe completar todos los campos de dirección");
+      setModalMensajeVisible(true);
+      return;
+    }
+    if (formaPago === "transferencia" && !comprobante) {
+      setModalMensajeTexto("Debe subir el comprobante de transferencia");
+      setModalMensajeVisible(true);
+      return;
+    }
+  }
+
+  // ✅ Validación adicional para comprobante en pago en efectivo
+  if (formaPago === "efectivo" && comprobante) {
+    setModalMensajeTexto("No debe subir comprobante si va a pagar en efectivo");
+    setModalMensajeVisible(true);
+    return;
+  }
+
+  const formaPagoFinal = envioProvincia || zonaSurServientre ? "transferencia" : "efectivo";
+  const requiereDatosEnvio = envioProvincia || zonaSurServientre;
+  const zonaEnvio = envioProvincia ? "provincia" : "quito";
+
+  let metodoEnvio = "encuentro-publico";
+  let costoEnvio = 0;
+
+  if (envioProvincia) {
+    metodoEnvio = "servientrega";
+    costoEnvio = 6;
+  } else if (zonaSurServientre) {
+    metodoEnvio = "servientrega";
+    costoEnvio = 3;
+  }
+
+  const pedido = {
+    cliente: idCliente,
+    productos: carrito.productos.map((item) => ({
+      producto: item.producto._id,
+      cantidad: item.cantidad,
+      nombre: item.producto.nombreDisco,
+      precio: item.producto.precio,
+    })),
+    direccion: requiereDatosEnvio
+      ? {
+          callePrincipal,
+          calleSecundaria,
+          numeracion,
+          referencia,
+          provincia,
+          ciudad,
+          cedula,
+          nombreRecibe,
+        }
+      : null,
+    zonaEnvio,
+    metodoEnvio,
+    costoEnvio,
+    formaPago: formaPagoFinal,
+    nombre,
+    telefono,
+    comprobantePago: comprobante || null,
+    total: carrito.total,
+  };
+
+  const formData = new FormData();
+  formData.append("zonaEnvio", pedido.zonaEnvio);
+  formData.append("metodoEnvio", pedido.metodoEnvio);
+  formData.append("formaPago", pedido.formaPago);
+
+  if (pedido.direccion) {
+    formData.append("direccionEnvio", JSON.stringify(pedido.direccion));
+  }
+
+  if (pedido.comprobantePago) {
+    let file;
+    if (pedido.comprobantePago.startsWith("data:image")) {
+      file = dataURLtoFile(pedido.comprobantePago, "comprobante.jpg");
+    } else {
+      const uriParts = pedido.comprobantePago.split(".");
+      const fileType = uriParts[uriParts.length - 1];
+      file = {
+        uri: pedido.comprobantePago,
+        name: `comprobante.${fileType}`,
+        type: `image/${fileType}`,
       };
-      const formData = new FormData();
+    }
+    formData.append("comprobantePago", file as any);
+  }
 
-        formData.append("zonaEnvio", pedido.zonaEnvio);
-        formData.append("metodoEnvio", pedido.metodoEnvio);
-        formData.append("formaPago", pedido.formaPago);
-
-        if (pedido.direccion) {
-          formData.append("direccionEnvio", JSON.stringify(pedido.direccion));
-        }
-
-        if (pedido.comprobantePago) {
-          let file;
-          if (pedido.comprobantePago.startsWith("data:image")) {
-            // Si es base64, convierte a File
-            file = dataURLtoFile(pedido.comprobantePago, "comprobante.jpg");
-          } else {
-            const uriParts = pedido.comprobantePago.split(".");
-            const fileType = uriParts[uriParts.length - 1];
-
-            file = {
-              uri: pedido.comprobantePago,
-              name: `comprobante.${fileType}`,
-              type: `image/${fileType}`,
-            };
-          }
-
-          formData.append("comprobantePago", file as any);
-        }
-    try {
+  try {
     const resultado = await finalizarCompraEnBackend(formData);
     console.log("Compra exitosa:", resultado);
-
     setModalCompraExitosaVisible(true);
-    // Vaciar carrito local (no hace falta llamar al backend otra vez)
-      setCarrito({ ...carrito, productos: [], total: 0 });
-      setProductos([]);
-      setCedula("");
-      setNombreRecibe("");
-      setComprobante(null);
-      setZonaSurServientre(false);
-      setEnvioQuito(false);
-      setEnvioProvincia(false);
-      setZonaOtra(false);
-      setFormaPago("");
-    
-    } catch (error) {
-      console.error("Error al finalizar compra:", error);
-      setModalMensajeTexto("Ocurrió un error al procesar la compra");
-      setModalMensajeVisible(true);
-    }
-  };
+
+    // 🧹 Limpiar estados
+    setCarrito({ ...carrito, productos: [], total: 0 });
+    setProductos([]);
+    setCedula("");
+    setNombreRecibe("");
+    setComprobante(null);
+    setZonaSurServientre(false);
+    setEnvioQuito(false);
+    setEnvioProvincia(false);
+    setZonaOtra(false);
+    setFormaPago("");
+  } catch (error: any) {
+    console.error("Error al finalizar compra:", error);
+    const msg = error?.response?.data?.msg || error?.message || "Ocurrió un error al procesar la compra";
+    setModalMensajeTexto(msg);
+    setModalMensajeVisible(true);
+  }
+};
 
   return (
     <ScrollView
@@ -966,6 +952,7 @@ const styles = StyleSheet.create({
   },
   comprobanteContainer: {
     marginTop: 10,
+    margin:15,
   },
   label: {
     color: "#fff",

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import CorreoNoVerificado_Modal from '../components/modals/CorreoNoVerificado_Modal';
 import CorreoEnviado_Modal from '../components/modals/CorreoEnviado'; // crea este modal similar
 import RecuperarPasswordModal from '../components/modals/RecuperarPasswordModal';
+import Constants from 'expo-constants';
 
 type FormData = {
   email: string;
@@ -26,7 +27,29 @@ export default function LoginScreen() {
   const [reenviando, setReenviando] = useState(false);
   const [showCorreoEnviado, setShowCorreoEnviado] = useState(false);
   const [mostrarModalRecuperar, setMostrarModalRecuperar] = useState(false);
+  //🚨 Login automático para Firebase Test Lab - NO afecta usuarios normales
+  const isTestLab = () => {
+  const deviceName = Constants.deviceName || '';
+  return deviceName.includes('Test') || deviceName.includes('Firebase');
+  };
+  useEffect(() => {
+    if (isTestLab()) {
+      // Datos de usuario prueba (debes crear este usuario en backend)
+      const testUser = {
+        email: 'evetaty1997@outlook.com',
+        password: '1234-Hola',
+      };
 
+      loginUser(testUser)
+        .then(() => {
+          // Aquí navega a la pantalla principal o home
+          router.replace('/home'); // Ajusta según tu ruta real
+        })
+        .catch((error) => {
+          console.log('Error en login automático:', error);
+        });
+    }
+  }, []);
   const onSubmit = async (data: FormData) => {
     try {
       const res = await loginUser(data);
