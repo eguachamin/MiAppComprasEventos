@@ -16,7 +16,7 @@ const CompraExitosaModal: React.FC<Props> = ({ visible, onClose }) => {
         <View style={styles.modal}>
           <Text style={styles.title}>¡Gracias por tu compra!</Text>
           <Text style={styles.text}>
-            Si realizaste el pago por transferencia y el envío es a provincia,
+            Haz realizado el pago por transferencia y el envío es por Servientrega,
             en el apartado <Text style={styles.bold}>Mis pedidos</Text> se subirá la guía
             para que estés pendiente de la entrega. Esta puede demorar hasta 48 horas.
           </Text>

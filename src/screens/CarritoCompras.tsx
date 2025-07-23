@@ -501,15 +501,13 @@ const handleCedulaChange = (text: string) => {
   try {
     const resultado = await finalizarCompraEnBackend(formData);
     console.log("Compra exitosa:", resultado);
-    setModalCompraExitosaVisible(true);
-
-    //Prueba de Funcionamiento
-    console.log("✓ Compra finalizada con éxito");
-    console.log("Datos enviados al backend:", formData);
-    console.log("Respuesta del servidor:", resultado?.status);
-    if (resultado?.data?.msg?.includes("éxito")) {
-    console.log("📩 Notificación enviada al administrador sobre la nueva compra");
-    }
+    //Utilizado para la Prueba de Funcionamiento
+    //console.log("✓ Compra finalizada con éxito");
+    //console.log("Datos enviados al backend:", formData);
+    //console.log("Respuesta del servidor:", resultado?.status);
+    //if (resultado?.data?.msg?.includes("éxito")) {
+    //console.log("📩 Notificación enviada al administrador sobre la nueva compra");
+    //}
     // Mostrar modal según la opción seleccionada
     if (envioProvincia || zonaSurServientre) {
       setModalCompraExitosaVisible(true);

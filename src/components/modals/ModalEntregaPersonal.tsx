@@ -13,7 +13,8 @@ const ModalEntregaPersonal: React.FC<Props> = ({ visible, onClose }) => {
         <View style={styles.modal}>
           <Text style={styles.title}>¡Compra registrada!</Text>
           <Text style={styles.text}>
-            Si estás en <Text style={styles.bold}>Quito</Text> y el pago fue en efectivo, por favor da clic en el siguiente enlace para coordinar la entrega personalmente:
+          Como estás en <Text style={styles.bold}>Quito</Text> y has elegido pagar en efectivo, coordinaremos la entrega personalmente.
+          Por favor, comunícate con nosotros por <Text style={styles.bold}>WhatsApp</Text> haciendo clic en el siguiente enlace:
           </Text>
 
           {/* Botón de WhatsApp */}
