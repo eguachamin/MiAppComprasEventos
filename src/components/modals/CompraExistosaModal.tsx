@@ -22,7 +22,7 @@ const CompraExitosaModal: React.FC<Props> = ({ visible, onClose }) => {
           </Text>
           <Text style={styles.text}>
             Si realizaste la compra un viernes, la entrega se realizará en días laborales.
-            Revisa el apartado <Text style={styles.bold}>Mis pedidos</Text> para ver notificaciones de actualización.
+            Revisa el apartado <Text style={styles.bold}>Mis pedidos</Text> para ver la actualización de tu pedido.
           </Text>
 
           {/* Botón para ir a Mis pedidos */}
