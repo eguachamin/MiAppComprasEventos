@@ -1,39 +1,27 @@
-import { useRouter } from 'expo-router';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
 }
 
-const CompraExitosaModal: React.FC<Props> = ({ visible, onClose }) => {
-  const router = useRouter();
-
+const ModalEntregaPersonal: React.FC<Props> = ({ visible, onClose }) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modal}>
-          <Text style={styles.title}>¡Gracias por tu compra!</Text>
+          <Text style={styles.title}>¡Compra registrada!</Text>
           <Text style={styles.text}>
-            Si realizaste el pago por transferencia y el envío es a provincia,
-            en el apartado <Text style={styles.bold}>Mis pedidos</Text> se subirá la guía
-            para que estés pendiente de la entrega. Esta puede demorar hasta 48 horas.
-          </Text>
-          <Text style={styles.text}>
-            Si realizaste la compra un viernes, la entrega se realizará en días laborales.
-            Revisa el apartado <Text style={styles.bold}>Mis pedidos</Text> para ver notificaciones de actualización.
+            Si estás en <Text style={styles.bold}>Quito</Text> y el pago fue en efectivo, por favor da clic en el siguiente enlace para coordinar la entrega personalmente:
           </Text>
 
-          {/* Botón para ir a Mis pedidos */}
+          {/* Botón de WhatsApp */}
           <TouchableOpacity
-            onPress={() => {
-              onClose();
-              router.push('/mis-pedidos'); // Ruta hacia "Mis pedidos"
-            }}
+            onPress={() => Linking.openURL('https://wa.link/d609q8')}
             style={styles.linkButton}
           >
-            <Text style={styles.linkText}>Ir a Mis Pedidos</Text>
+            <Text style={styles.linkText}>Coordinar vía WhatsApp</Text>
           </TouchableOpacity>
 
           {/* Botón para cerrar */}
@@ -46,7 +34,7 @@ const CompraExitosaModal: React.FC<Props> = ({ visible, onClose }) => {
   );
 };
 
-export default CompraExitosaModal;
+export default ModalEntregaPersonal;
 
 const styles = StyleSheet.create({
   overlay: {

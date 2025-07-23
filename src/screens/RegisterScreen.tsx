@@ -1,3 +1,7 @@
+//Pantalla de Login
+//Evelyn Guachamin
+
+// Importaciones necesarias de librerías y componentes
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
@@ -14,11 +18,14 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
-import { registerUser } from "../services/userService";
 import { provinciasConCiudades } from "../utils/provinciasCiudades";
 import { registroSchema } from "../utils/validators";
+// Servicios del backend para registrar usuarios
+import { registerUser } from "../services/userService";
+// Modales personalizados
+import Email_Existente_Modal from "../components/modals/Email-ya-registrado";
 
+// Listado de Provincias utilizado para el Picker
 const provincias = [
   "Azuay",
   "Bolívar",
@@ -46,6 +53,7 @@ const provincias = [
   "Zamora Chinchipe",
 ];
 
+// Tipado del formulario
 type ValoresFormulario = {
   nombre: string;
   email: string;
@@ -60,7 +68,7 @@ type ValoresFormulario = {
 export default function PantallaRegistro() {
   const [showEmail_Existente_Modal, setShowEmail_Existente_Modal] =
     useState(false);
-
+  // Hook useForm inicializa los campos del formulario con valores vacíos y aplica validación con Zod
   const {
     control,
     handleSubmit,
@@ -85,9 +93,10 @@ export default function PantallaRegistro() {
   const [ciudadItems, setCiudadItems] = useState<
     { label: string; value: string }[]
   >([]);
-  const valorCiudad = watch("ciudad");
+
   const [provinciaOpen, setProvinciaOpen] = useState(false);
   const valorProvincia = watch("provincia");
+  
   useEffect(() => {
     if (provinciaOpen) {
       setCiudadOpen(false);
@@ -99,28 +108,45 @@ export default function PantallaRegistro() {
       setProvinciaOpen(false);
     }
   }, [ciudadOpen]);
-
+  // useEffect actualiza dinámicamente el listado de ciudades al seleccionar una provincia
   useEffect(() => {
     if (valorProvincia) {
       const ciudades = provinciasConCiudades[valorProvincia] || [];
       setCiudadItems(ciudades.map((c) => ({ label: c, value: c })));
       setValue("ciudad", ""); // Limpia ciudad anterior si cambia provincia
-      console.log(provinciasConCiudades[valorProvincia]);
+
+      // console.log utilizado únicamente en para pruebas en desarrollo
+      //console.log(provinciasConCiudades[valorProvincia]);
     }
   }, [valorProvincia]);
-
+  //Funcion para enviar la información al backend
   const enviarFormulario = async (data: ValoresFormulario) => {
+    //Antes de enviar se realiza las validaciones de los campos del formulario
     if (data.password !== data.confirmarPassword) {
       Alert.alert("Error", "Las contraseñas no coinciden");
       return;
     }
 
     try {
+      //Envio de la informacion
       const respuesta = await registerUser(data);
       console.log("Registro exitoso:", respuesta);
+
+      // ↓↓↓ Logs solo para pruebas funcionales ↓↓↓
+      // console.log("✓ Usuario registrado correctamente");
+      // console.log("Datos enviados:", data);
+      // console.log("Respuesta del servidor:", respuesta.status);
+      // Parte de las pruebas de funcionalidad
+      //if (respuesta?.data?.msg?.includes("confirmar")) {
+      //console.log("📩 Notificación enviada al administrador sobre la nueva compra");
+      //}
+
+      //Cambio de pantalla registro exitoso
       router.replace("/registroExitoso");
     } catch (error: any) {
       console.log("Error capturado en enviarFormulario:", error);
+      //Pruebas de Funcionalidad
+      //console.log("✗ Error al registrar usuario:", error.message);
 
       if (
         error?.response?.data?.msg ===
@@ -213,7 +239,7 @@ export default function PantallaRegistro() {
                     onChange(itemValue);
                   }}
                   style={{ color: "white",height: 50 }}
-                  dropdownIconColor="#FFD700" 
+                  dropdownIconColor="#FFD700"
                   
                 >
                   <Picker.Item label="Selecciona una provincia" value="" />
@@ -247,7 +273,7 @@ export default function PantallaRegistro() {
                   }}
                   enabled={!!valorProvincia}
                   style={{ color: "white",  height: 50 }}
-                  dropdownIconColor="#FFD700" 
+                  dropdownIconColor="#FFD700"
                 >
                   {!valorProvincia ? (
                     <Picker.Item
@@ -272,7 +298,7 @@ export default function PantallaRegistro() {
             </>
           )}
         />
-
+        {/* Botón de Registro */}
         <TouchableOpacity
           style={estilos.boton}
           onPress={handleSubmit(enviarFormulario)}
@@ -280,7 +306,7 @@ export default function PantallaRegistro() {
           <Text style={estilos.textoBoton}>Registrarse</Text>
         </TouchableOpacity>
       </ScrollView>
-
+        {/*Muestra Modal Personalizado */}
       {showEmail_Existente_Modal && (
         <Email_Existente_Modal
           onClose={() => setShowEmail_Existente_Modal(false)}

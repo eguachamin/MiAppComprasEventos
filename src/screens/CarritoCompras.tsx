@@ -1,28 +1,29 @@
+import ModalMensaje from "@/components/modals/ModalMensaje";
+import {
+  Carrito,
+  actualizarCantidadProducto,
+  eliminarProductoDelCarrito,
+  finalizarCompraEnBackend,
+  obtenerCarrito,
+} from "@/services/carritoService";
+import { provinciasConCiudades } from "@/utils/provinciasCiudades";
+import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import CompraExitosaModal from "../components/modals/CompraExistosaModal"; // ajusta el path si es necesario
-import * as ImagePicker from "expo-image-picker";
-import { useAuthStore } from "../store/authStore";
+import CompraExitosaModal from "../components/modals/CompraExistosaModal";
+import ModalEntregaPersonal from '../components/modals/ModalEntregaPersonal';
 import { obtenerDetalleCliente } from "../services/userService";
-import ModalMensaje from "@/components/modals/ModalMensaje";
-import {
-  obtenerCarrito,
-  Carrito,
-  actualizarCantidadProducto,
-  eliminarProductoDelCarrito,
-  finalizarCompraEnBackend,
-} from "@/services/carritoService";
-import { validateCedulaOrRUC } from '../utils/validators'
+import { validateCedulaOrRUC } from '../utils/validators';
 
 
 type ProductoCarrito = {
@@ -31,7 +32,32 @@ type ProductoCarrito = {
   cantidad: number;
   precio: number;
 };
-
+const provincias = [
+  "Azuay",
+  "Bolívar",
+  "Cañar",
+  "Carchi",
+  "Chimborazo",
+  "Cotopaxi",
+  "El_Oro",
+  "Esmeraldas",
+  "Galápagos",
+  "Guayas",
+  "Imbabura",
+  "Loja",
+  "Los_Ríos",
+  "Manabí",
+  "Morona_Santiago",
+  "Napo",
+  "Orellana",
+  "Pastaza",
+  "Pichincha",
+  "Santa_Elena",
+  "Santo_Domingo",
+  "Sucumbíos",
+  "Tungurahua",
+  "Zamora Chinchipe",
+];
 
 export default function CarritoCompras() {
   //Para cambiar de página
@@ -39,12 +65,10 @@ export default function CarritoCompras() {
   // Modales
   const [modalMensajeVisible, setModalMensajeVisible] = useState(false);
   const [modalMensajeTexto, setModalMensajeTexto] = useState("");
-  const [modalMensajeTipo, setModalMensajeTipo] = useState<"exito" | "error">(
-    "exito"
-  );
-  const [modalCompraExitosaVisible, setModalCompraExitosaVisible] =
-    useState(false);
+  const [modalMensajeTipo, setModalMensajeTipo] = useState<"exito" | "error">("exito");
+  const [modalCompraExitosaVisible, setModalCompraExitosaVisible] = useState(false);
   const [error, setError] = useState("");
+  const [modalEntregaPersonalVisible, setModalEntregaPersonalVisible] = useState(false);
   //Subir Documentos
   const [comprobante, setComprobante] = useState<string | null>(null);
   // Informacion del cliente
@@ -59,6 +83,7 @@ export default function CarritoCompras() {
   const [referencia, setReferencia] = useState("");
   const [provincia, setProvincia] = useState("");
   const [ciudad, setCiudad] = useState("");
+  const [ciudadItems, setCiudadItems] = useState<{ label: string; value: string }[]>([]);
   //Informacion para el envio
   const [cedula, setCedula] = useState("");
   const [nombreRecibe, setNombreRecibe] = useState("");
@@ -86,7 +111,20 @@ export default function CarritoCompras() {
     : envioProvincia
     ? subtotal + costoEnvioProvincia
     : subtotal;
+  useEffect(() => {
+    if (zonaSurServientre) {
+      setProvincia("Pichincha");
+      setCiudad("Quito");
+    }
+  }, [zonaSurServientre]);
 
+  useEffect(() => {
+  if (provincia) {
+      const ciudades = provinciasConCiudades[provincia] || [];
+      setCiudadItems(ciudades.map((c) => ({ label: c, value: c })));
+      setCiudad(""); // limpiar ciudad si se cambia provincia
+    }
+  }, [provincia]);
   useEffect(() => {
     const cargarDatosCliente = async () => {
       try {
@@ -273,6 +311,7 @@ const handleCedulaChange = (text: string) => {
   const handleCloseModal = () => {
     setModalCompraExitosaVisible(false);
     route.push("/pedidos");
+    setModalEntregaPersonalVisible(false);
   };
   const dataURLtoFile = (dataurl: string, filename: string) => {
     const arr = dataurl.split(",");
@@ -341,6 +380,13 @@ const handleCedulaChange = (text: string) => {
 
   // ✅ Validaciones para Quito - zona sur (con Servientrega)
   if (!envioProvincia && zonaSurServientre) {
+    // Asignar provincia y ciudad automáticamente
+    const provinciaZonaSur = "Pichincha";
+    const ciudadZonaSur = "Quito";
+
+    if (!provincia) setProvincia(provinciaZonaSur);
+    if (!ciudad) setCiudad(ciudadZonaSur);
+
     if (!cedula || !cedulaValida) {
       setModalMensajeTexto("Debe ingresar una cédula o RUC válido");
       setModalMensajeVisible(true);
@@ -356,14 +402,13 @@ const handleCedulaChange = (text: string) => {
       setModalMensajeVisible(true);
       return;
     }
+    
     const direccionIncompleta = [
       callePrincipal,
       calleSecundaria,
       numeracion,
-      referencia,
-      provincia,
-      ciudad,
-    ].some((campo) => !campo);
+      referencia
+      ].some((campo) => !campo);
     if (direccionIncompleta) {
       setModalMensajeTexto("Debe completar todos los campos de dirección");
       setModalMensajeVisible(true);
@@ -458,6 +503,19 @@ const handleCedulaChange = (text: string) => {
     console.log("Compra exitosa:", resultado);
     setModalCompraExitosaVisible(true);
 
+    //Prueba de Funcionamiento
+    console.log("✓ Compra finalizada con éxito");
+    console.log("Datos enviados al backend:", formData);
+    console.log("Respuesta del servidor:", resultado?.status);
+    if (resultado?.data?.msg?.includes("éxito")) {
+    console.log("📩 Notificación enviada al administrador sobre la nueva compra");
+    }
+    // Mostrar modal según la opción seleccionada
+    if (envioProvincia || zonaSurServientre) {
+      setModalCompraExitosaVisible(true);
+    } else {
+      setModalEntregaPersonalVisible(true);
+    }
     // 🧹 Limpiar estados
     setCarrito({ ...carrito, productos: [], total: 0 });
     setProductos([]);
@@ -556,8 +614,6 @@ const handleCedulaChange = (text: string) => {
             },
             { label: "Numeración", value: numeracion, setter: setNumeracion },
             { label: "Referencia", value: referencia, setter: setReferencia },
-            { label: "Provincia", value: provincia, setter: setProvincia },
-            { label: "Ciudad", value: ciudad, setter: setCiudad },
           ].map(({ label, value, setter }) => (
             <TextInput
               key={label}
@@ -568,6 +624,39 @@ const handleCedulaChange = (text: string) => {
               onChangeText={setter}
             />
           ))}
+          {/* Picker de Provincia */}
+          <View style={[styles.pickerContainer, { marginBottom: 12 }]}>
+            <Picker
+              selectedValue={provincia}
+              onValueChange={(itemValue) => setProvincia(itemValue)}
+              style={{ color: "white",backgroundColor: "#191919", height: 50 }}
+              dropdownIconColor="#FFD700"
+            >
+              <Picker.Item label="Selecciona una provincia" value="" />
+              {provincias.map((p) => (
+                <Picker.Item key={p} label={p.replace("_", " ")} value={p} />
+              ))}
+            </Picker>
+          </View>
+
+          {/* Picker de Ciudad */}
+          <View style={[styles.pickerContainer, { marginBottom: 12 }]}>
+            <Picker
+              selectedValue={ciudad}
+              onValueChange={(itemValue) => setCiudad(itemValue)}
+              enabled={!!provincia}
+              style={{ color: "white",backgroundColor: "#191919",height: 50 }}
+              dropdownIconColor="#FFD700"
+            >
+              {!provincia ? (
+                <Picker.Item label="Primero selecciona una provincia" value="" color="#999" />
+              ) : (
+                ciudadItems.map((item) => (
+                  <Picker.Item key={item.value} label={item.label} value={item.value} />
+                ))
+              )}
+            </Picker>
+          </View>
         </>
       )}
 
@@ -604,8 +693,6 @@ const handleCedulaChange = (text: string) => {
             },
             { label: "Numeración", value: numeracion, setter: setNumeracion },
             { label: "Referencia", value: referencia, setter: setReferencia },
-            { label: "Provincia", value: provincia, setter: setProvincia },
-            { label: "Ciudad", value: ciudad, setter: setCiudad },
           ].map(({ label, value, setter }) => (
             <TextInput
               key={label}
@@ -615,7 +702,20 @@ const handleCedulaChange = (text: string) => {
               value={value}
               onChangeText={setter}
             />
-          ))}{" "}
+          ))}
+          {/* Provincia y Ciudad fijas */}
+          <TextInput
+            style={[styles.input]}
+            value="Pichincha"
+            editable={false}
+            placeholderTextColor="#aaa"
+          />
+          <TextInput
+            style={[styles.input]}
+            value="Quito"
+            editable={false}
+            placeholderTextColor="#aaa"
+          />
         </>
       )}
 
@@ -845,6 +945,11 @@ const handleCedulaChange = (text: string) => {
         visible={modalCompraExitosaVisible}
         onClose={handleCloseModal}
       />
+      {/* Modal para mostrar éxito Entrega Quito */}
+      <ModalEntregaPersonal
+        visible={modalEntregaPersonalVisible}
+        onClose={handleCloseModal}
+      />
     </ScrollView>
   );
 }
@@ -870,6 +975,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     color: "#000",
+  },
+  pickerContainer: {
+    backgroundColor: "#000",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#444",
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  pickerItem: {
+    color: "white",
+    fontSize: 16,
   },
   titulo: {
     fontSize: 20,
