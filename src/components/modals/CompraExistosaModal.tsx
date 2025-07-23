@@ -29,7 +29,7 @@ const CompraExitosaModal: React.FC<Props> = ({ visible, onClose }) => {
           <TouchableOpacity
             onPress={() => {
               onClose();
-              router.push('/mis-pedidos'); // Ruta hacia "Mis pedidos"
+              router.push("/pedidos"); // Ruta hacia "Mis pedidos"
             }}
             style={styles.linkButton}
           >
