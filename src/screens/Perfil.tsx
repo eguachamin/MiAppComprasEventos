@@ -1,3 +1,7 @@
+//Pantalla Mi perfil
+//Evelyn Guachamin
+
+//Importación de Librerías
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -48,7 +52,7 @@ const PerfilCliente = () => {
     mensaje: "",
   });
   const [eliminarFoto, setEliminarFoto] = useState(false);
-
+  //Trae token del cliente registrado en la base de datos
   useEffect(() => {
     if (user && token) {
       cargarPerfil();
@@ -58,7 +62,7 @@ const PerfilCliente = () => {
       setLoading(false); // Para que no quede cargando infinitamente
     }
   }, [user, token]);
-
+  //Permite escoger imagen par acmabiar foto de perfil
   useEffect(() => {
     (async () => {
       const { status } =
@@ -71,7 +75,7 @@ const PerfilCliente = () => {
       }
     })();
   }, []);
-
+  //Trae información del cliente registrada en la base de datos
   const cargarPerfil = async () => {
     try {
       const data = await obtenerDetalleCliente();
@@ -85,7 +89,7 @@ const PerfilCliente = () => {
       setLoading(false);
     }
   };
-
+  //Confirma el envío de la imagen
   const seleccionarImagen = async () => {
     console.log("Seleccionar imagen ejecutado");
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -110,6 +114,7 @@ const PerfilCliente = () => {
     }
     }
   };
+  //Actualiza la información en la base de datos
   const guardarCambios = async () => {
     console.log("Ejecutando guardarCambios");
     if (!perfil) {
@@ -162,6 +167,7 @@ const PerfilCliente = () => {
       setEliminarFoto(false);
     }
   };
+  //Cambio o actualización de la información ingresada por el cliente
   const manejarCambioPassword = async () => {
     if (!passwordactual || !passwordnuevo) {
       setModalMensaje({
@@ -353,6 +359,7 @@ const PerfilCliente = () => {
 
 export default PerfilCliente;
 
+//Estilos de la Interfaz
 const styles = StyleSheet.create({
   contenedor: {
     flexGrow: 1,

@@ -1,3 +1,7 @@
+//Pantalla Principal
+//Evelyn Guachamin
+
+//Importacion de Librerias
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
@@ -6,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '@/store/authStore';
 import { useNotificacionStore } from '@/store/notificacionStore';
 
+//Menú de actividades de la aplicación
 export default function HomeScreen() {
   const router = useRouter();
   const cantidadNoLeidas = useNotificacionStore((state) => state.cantidadNoLeidas);
@@ -39,7 +44,7 @@ export default function HomeScreen() {
       </View>
 
       <Text style={styles.subtitle}>¡Bienvenido a tu universo musical!</Text>
-
+        {/* Menú */}
       <View style={styles.menu}>
         {menuItems.map((item) => (
           <TouchableOpacity
@@ -55,7 +60,7 @@ export default function HomeScreen() {
     </LinearGradient>
   );
 }
-
+// Estilos de la Interfaz
 const styles = StyleSheet.create({
   container: {
     flex: 1,

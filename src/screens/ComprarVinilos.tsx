@@ -1,3 +1,7 @@
+// Pantalla Catálogo de Productos
+// Evelyn Guachamin
+
+// Importación de Librerías
 import React, { useState, useEffect } from "react";
 import {ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,FlatList,Image,Switch,} from "react-native";
 import { getProductos } from "../services/userService";
@@ -31,7 +35,9 @@ export default function ComprarVinilos() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [productosFiltrados, setProductosFiltrados] = useState<Producto[]>([]);
   const [productosEnCarrito, setProductosEnCarrito] = useState<string[]>([]);
-
+  
+  //Carga los productos que se encuentran en la base de datos
+  //actualizada por el Admin
   useEffect(() => {
     const cargarProductos = async () => {
       try {
@@ -54,7 +60,7 @@ export default function ComprarVinilos() {
     };
     cargarProductos();
   }, []);
-
+  //Filtros de Búsqueda
   useEffect(() => {
     const textoBusqueda = normalizarTexto(busqueda);
 
@@ -80,7 +86,7 @@ export default function ComprarVinilos() {
   const actualizarCantidad = (id: string, nuevaCantidad: number) => {
     setCantidades((prev) => ({ ...prev, [id]: nuevaCantidad }));
   };
-
+  //función para agregar productos al carrito
   const handleAgregarAlCarrito = async (
     productoId: string,
     cantidad: number = 1
@@ -209,7 +215,7 @@ export default function ComprarVinilos() {
     </View>
   );
 }
-
+// Estilos de la Interfaz
 const estilos = StyleSheet.create({
   contenedor: {
     flex: 1,

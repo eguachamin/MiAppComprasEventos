@@ -315,7 +315,7 @@ export default function PantallaRegistro() {
     </KeyboardAvoidingView>
   );
 }
-
+// Estilos de la Interfaz
 const estilos = StyleSheet.create({
   contenedor: {
     flex: 1,

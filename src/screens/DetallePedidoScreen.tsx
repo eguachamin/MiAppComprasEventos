@@ -1,4 +1,6 @@
-// screens/DetallePedidoScreen.tsx
+// Pantalla Detalle de Pedidos
+// Evelyn Guachamin
+//Importación de librerías
 import ZoomableImageModal from '@/components/modals/ZoomableImage'
 import React, { useEffect, useState } from "react";
 import {
@@ -19,6 +21,7 @@ export default function DetallePedidoScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [pedido, setPedido] = useState<any>(null);
 
+  //Carga el detalle del producto seleccionado
   useEffect(() => {
     const cargarDetalle = async () => {
       try {
@@ -137,7 +140,7 @@ export default function DetallePedidoScreen() {
   </ScrollView>
 );
 }
-
+// Estilos de la Interfaz
 const styles = StyleSheet.create({
   contenedor: {
     backgroundColor: "#000",

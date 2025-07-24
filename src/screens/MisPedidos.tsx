@@ -1,4 +1,7 @@
-// screens/PedidosScreen.tsx
+// Pantalla Mis Pedidos
+//Evelyn Guachamin
+
+//Importación de Librerías
 
 import React, { useEffect, useState } from "react";
 import {
@@ -16,11 +19,12 @@ export default function PedidosScreen() {
   const [mostrarPendientes, setMostrarPendientes] = useState(false);
   const [pedidos, setPedidos] = useState<any[]>([]);
   const router = useRouter();
-
+  //Capitaliza la palabra para mejor presentación en la interfaz (Estado)
   const capitalizarPrimeraLetra = (texto: string) => {
   if (!texto) return '';
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 };
+//Carga los pedidos del Cliente
   useEffect(() => {
     const cargarPedidos = async () => {
       try {
@@ -98,7 +102,7 @@ export default function PedidosScreen() {
     </ScrollView>
   );
 }
-
+//Estilos de la Interfaz
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,

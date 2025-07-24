@@ -1,3 +1,6 @@
+//Pantalla Principal
+//Evelyn Guachamin
+// Importación de Librerías
 import ModalMensaje from "@/components/modals/ModalMensaje";
 import {
   Carrito,
@@ -25,7 +28,7 @@ import ModalEntregaPersonal from '../components/modals/ModalEntregaPersonal';
 import { obtenerDetalleCliente } from "../services/userService";
 import { validateCedulaOrRUC } from '../utils/validators';
 
-
+// Elementos para el envío de la informacion al backend
 type ProductoCarrito = {
   id: string;
   nombre: string;
@@ -118,6 +121,7 @@ export default function CarritoCompras() {
     }
   }, [zonaSurServientre]);
 
+  // Lista de provincia con Ciudades
   useEffect(() => {
   if (provincia) {
       const ciudades = provinciasConCiudades[provincia] || [];
@@ -125,6 +129,8 @@ export default function CarritoCompras() {
       setCiudad(""); // limpiar ciudad si se cambia provincia
     }
   }, [provincia]);
+
+  //Datos del Cliente
   useEffect(() => {
     const cargarDatosCliente = async () => {
       try {
@@ -141,6 +147,7 @@ export default function CarritoCompras() {
     cargarDatosCliente();
   }, []);
 
+  // Carga los productos seleccionados
   useEffect(() => {
     const fetchCarrito = async () => {
       try {
@@ -163,13 +170,14 @@ export default function CarritoCompras() {
     fetchCarrito();
   }, []);
 
+  //Subtotal
   useEffect(() => {
     const nuevoSubtotal = productos.reduce((acc, item) => {
       return acc + item.precio * item.cantidad;
     }, 0);
     setSubtotal(nuevoSubtotal);
   }, [productos]);
-
+  // Calcula el envio en el subtotal
   useEffect(() => {
     const costoEnvio =
       envioQuito && zonaSurServientre ? 3.5 : envioProvincia ? 6 : 0;
@@ -177,7 +185,7 @@ export default function CarritoCompras() {
     setTotal(subtotal + costoEnvio);
   }, [subtotal, envioQuito, envioProvincia, zonaSurServientre]);
 
-  
+ // Validadción de Cédulas
 const handleCedulaChange = (text: string) => {
   const soloNumeros = text.replace(/[^0-9]/g, "");
 
@@ -192,6 +200,7 @@ const handleCedulaChange = (text: string) => {
   }
 };
 
+// Selecciona la Imagen
   const seleccionarImagen = async () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
@@ -206,7 +215,7 @@ const handleCedulaChange = (text: string) => {
       console.log("URI del comprobante:", resultado.assets[0].uri);
     }
   };
-
+  // Actualiza la cantidad
   const actualizarCantidad = async (index: number, nuevaCantidad: number) => {
     if (nuevaCantidad < 1) return;
     const producto = productos[index];
@@ -220,7 +229,7 @@ const handleCedulaChange = (text: string) => {
       console.error("Error al actualizar cantidad:", error);
     }
   };
-
+  // Elimina Producto del Carrito
   const eliminarProducto = async (productoId: string) => {
     try {
       await eliminarProductoDelCarrito(productoId);
@@ -268,7 +277,7 @@ const handleCedulaChange = (text: string) => {
       setTimeout(() => setModalMensajeVisible(false), 3000);
     }
   };
-
+  // Función para el botón Vaciar el Carrito
   const vaciarCarrito = async () => {
     try {
     if (!carrito || carrito.productos.length === 0) return;
@@ -326,7 +335,9 @@ const handleCedulaChange = (text: string) => {
 
     return new File([u8arr], filename, { type: mime });
   };
-  const finalizarCompra = async () => {
+
+  //Función De Compra con las respectivas validaciones
+    const finalizarCompra = async () => {
   const cedulaValida = validateCedulaOrRUC(cedula);
 
   // ✅ Validación: carrito vacío
@@ -951,7 +962,7 @@ const handleCedulaChange = (text: string) => {
     </ScrollView>
   );
 }
-
+// Estilos de la Interfaz
 const styles = StyleSheet.create({
   errorText: {
     color: "red",

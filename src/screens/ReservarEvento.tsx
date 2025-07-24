@@ -1,3 +1,7 @@
+//Pantalla Información de Eventos
+//Evelyn Guachamin
+
+//Importación de Librerías
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image, Linking, StyleSheet } from "react-native";
 import CarruselBanners from "@/components/modals/CarruselBanners";
@@ -6,7 +10,7 @@ import { obtenerBanners } from "@/services/eventosService";
 export default function InformacionEventosScreen() {
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  //Trae información ingresada en la base de datos y la muestra en el banner
   useEffect(() => {
     const cargarBanners = async () => {
       const datos = await obtenerBanners();
@@ -24,7 +28,7 @@ export default function InformacionEventosScreen() {
       {/* Carrusel de banners */}
       <CarruselBanners banners={banners} isLoading={loading} />
 
-      {/* Banners quemados (opcional si quieres dos fijos) */}
+      {/* Banners quemados  */}
       {!loading && (
         <>
           <Text style={styles.subtitulo}>¿Cómo cotizar un evento?</Text>
@@ -36,7 +40,7 @@ export default function InformacionEventosScreen() {
           <TouchableOpacity
             style={styles.botonWhatsapp}
             onPress={() => {
-              const numero = "+593992801667"; // Reemplaza con tu número real
+              const numero = "+593992801667"; 
               const mensajePredefinido = "Hola,%20¿pueden%20darme%20más%20información%20sobre%20los%20eventos?";
               const url = `whatsapp://send?text=${mensajePredefinido}&phone=${numero}`;
 
@@ -68,7 +72,7 @@ export default function InformacionEventosScreen() {
   >
     <View style={styles.redSocialItem}>
       <Image
-        source={require("@/assets/images/facebook.png")} // ajusta la ruta según tu estructura
+        source={require("@/assets/images/facebook.png")}
         style={styles.iconoRed}
       />
       <Text style={styles.redSocialTexto}>Edwin Asqui - Facebook</Text>
@@ -77,7 +81,7 @@ export default function InformacionEventosScreen() {
 
   <TouchableOpacity
     onPress={() =>
-      Linking.openURL("https://www.instagram.com/edwinasqui/") 
+      Linking.openURL("https://www.instagram.com/edwinasqui/")
     }
   >
     <View style={styles.redSocialItem}>
@@ -91,7 +95,7 @@ export default function InformacionEventosScreen() {
 
   <TouchableOpacity
     onPress={() =>
-      Linking.openURL("https://twitter.com/EdwinAsqui") 
+      Linking.openURL("https://twitter.com/EdwinAsqui")
     }
   >
     <View style={styles.redSocialItem}>
@@ -106,7 +110,7 @@ export default function InformacionEventosScreen() {
     </ScrollView>
   );
 }
-
+// Estilos de la interfaz
 const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
