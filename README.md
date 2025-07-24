@@ -1,4 +1,4 @@
-# APLICACIÓN MOVIL 👋
+# APLICACIÓN MÓVIL 👋
 ## TRABAJO DE INTEGRACIÓN CURRICULAR
 ### DESARROLLO DE UN SISTEMA PARA OPTIMIZAR LA GESTIÓN DE LA VENTA DE DISCOS DE VINILO Y LA CONSULTA DE EVENTOS DE EDWIN ASQUI DJ
 
@@ -22,7 +22,7 @@
 ##### Catálogo de Discos de Vinilo
 ![pantallasprototipo3](https://github.com/user-attachments/assets/1afe5fed-98af-47dc-b305-abc43f1cfc62)
 
-##### Carrito
+##### Carrito de Compras
 ![pantallasprototipo4](https://github.com/user-attachments/assets/0032fc11-2414-47fc-a1b4-0f6b04772daf)
 
 ##### Información de Eventos
