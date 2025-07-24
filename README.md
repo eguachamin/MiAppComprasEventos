@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# APLICACIÓN MOVIL 👋
+## TRABAJO DE INTEGRACIÓN CURRICULAR
+### DESARROLLO DE UN SISTEMA PARA OPTIMIZAR LA GESTIÓN DE LA VENTA DE DISCOS DE VINILO Y LA CONSULTA DE EVENTOS DE EDWIN ASQUI DJ
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+#### Autor: Evelyn Guachamin
 
-## Get started
+#### Link Descarga de la APK
 
-1. Install dependencies
+[Descarga APK Aquí](https://expo.dev/artifacts/eas/7xvrvGbGsPVV9FSPKBrC3h.apk) 
 
-   ```bash
-   npm install
-   ```
+#### Manual de Usuario
 
-2. Start the app
+[Mira el Manual de Uso Aquí](https://youtu.be/4B6Pd4ys_0o?si=eco5p9yRT6V9-lVr) 
 
-   ```bash
-   npx expo start
-   ```
+#### Interfaz de la Aplicación
+##### Acceso a la Aplicación
+![pantallasprototipo1](https://github.com/user-attachments/assets/c2ebb71c-0b5a-4ee8-829d-6c9e042cb418)
 
-In the output, you'll find options to open the app in a
+##### Menú Principal
+![pantallasprototipo2](https://github.com/user-attachments/assets/0e784a87-6e99-4557-acd0-64d5881181be)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+##### Catálogo de Discos de Vinilo
+![pantallasprototipo3](https://github.com/user-attachments/assets/1afe5fed-98af-47dc-b305-abc43f1cfc62)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+##### Carrito
+![pantallasprototipo4](https://github.com/user-attachments/assets/0032fc11-2414-47fc-a1b4-0f6b04772daf)
 
-## Get a fresh project
+##### Información de Eventos
+![Imagen de WhatsApp 2025-07-24 a las 00 55 06_7a2f37cc](https://github.com/user-attachments/assets/f0645d58-a1ee-425c-a6fc-241765496037)
+![Imagen de WhatsApp 2025-07-24 a las 00 55 06_88343dcf](https://github.com/user-attachments/assets/eb94a218-3b19-4805-82d7-f18366c55b9b)
 
-When you're ready, run:
+##### Mis Pedidos
+![pantallasprototipo5](https://github.com/user-attachments/assets/bea8d5b5-2e4a-4933-bb8b-ea0dc30d0a9e)
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+##### Mi Perfil
+![pantallasprototipo6](https://github.com/user-attachments/assets/f1d526a6-8cfe-4e39-8830-3a8f3490db50)
